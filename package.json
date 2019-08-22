@@ -1,0 +1,38 @@
+{
+  "name": "apollo-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -r esm ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.2.1",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "esm": "^3.2.25",
+    "nodemon": "^1.19.1",
+    "prettier": "^1.18.2"
+  },
+  "dependencies": {
+    "apollo-server": "^2.8.2",
+    "apollo-server-express": "^2.8.2",
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dataloader": "^1.4.0",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "graphql": "^14.4.2",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-resolvers": "^0.3.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.10",
+    "uuid": "^3.3.3"
+  }
+}
