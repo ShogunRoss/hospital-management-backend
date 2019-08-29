@@ -5,44 +5,44 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: true
+    required: true,
   },
   password: {
     type: String,
     required: true,
     minlength: 7,
-    maxLength: 42
+    maxLength: 42,
   },
   phone: {
     type: String,
-    required: true
+    required: true,
   },
   firstName: {
     type: String,
-    required: true
+    required: true,
   },
   lastName: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
-    default: 'USER'
+    default: 'USER',
   },
   confirmed: {
     type: Boolean,
-    default: false
+    default: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
   createdEvents: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Event'
-    }
-  ]
+      ref: 'Event',
+    },
+  ],
 });
 
 userSchema.pre('save', async function() {

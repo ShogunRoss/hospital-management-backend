@@ -1,17 +1,24 @@
 import { combineResolvers } from 'graphql-resolvers';
 import { AuthenticationError, UserInputError } from 'apollo-server';
 
-import { isAdmin, isAuthenticated } from '../../utils/authorization';
+import { isAdmin, isAuthenticated, isOwner } from '../../utils/authorization';
 import createToken from '../../utils/createToken';
+import { transformUser } from '../../utils/transfrom';
 
 export default {
   Query: {
     users: async (_, __, { models }) => {
-      return await models.User.find();
+      const users = await models.User.find();
+
+      return users.map(user => {
+        return transformUser(user);
+      });
     },
 
     user: async (_, { id }, { models }) => {
-      return await models.User.findById(id);
+      const user = await models.User.findById(id);
+
+      return transformUser(user);
     },
 
     me: async (_, __, { models, me }) => {
@@ -21,12 +28,8 @@ export default {
 
       const user = await models.User.findById(me.id);
 
-      return {
-        ...user._doc,
-        id: user.id,
-        password: null
-      };
-    }
+      return transformUser(user);
+    },
   },
 
   Mutation: {
@@ -40,7 +43,7 @@ export default {
         password,
         phone,
         firstName,
-        lastName
+        lastName,
       });
 
       return { token: createToken(user, secret) };
@@ -64,21 +67,11 @@ export default {
 
     updateUser: combineResolvers(
       isAuthenticated,
-      async (
-        _,
-        { updateInput: { phone, firstName, lastName } },
-        { models, me }
-      ) => {
-        const user = await models.User.findByIdAndUpdate(
-          me.id,
-          { phone, firstName, lastName },
-          { new: true }
-        );
-        return {
-          ...user._doc,
-          id: user.id,
-          password: null
-        };
+      async (_, { updateInput }, { models, me }) => {
+        const user = await models.User.findByIdAndUpdate(me.id, updateInput, {
+          new: true,
+        });
+        return transformUser(user);
       }
     ),
 
@@ -105,6 +98,20 @@ export default {
           return false;
         }
       }
-    )
-  }
+    ),
+
+    makeAdmin: combineResolvers(isOwner, async (_, { id }, { models }) => {
+      const user = await models.User.findByIdAndUpdate(id, { role: 'ADMIN' });
+
+      if (user) {
+        if (user.role !== 'ADMIN') {
+          return true;
+        } else {
+          throw new Error('User is already an Admin.');
+        }
+      } else {
+        throw new Error('User does not exist.');
+      }
+    }),
+  },
 };

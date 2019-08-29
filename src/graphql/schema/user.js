@@ -27,9 +27,9 @@ export default gql`
   }
 
   input UpdateInput {
-    phone: String!
-    firstName: String!
-    lastName: String!
+    phone: String
+    firstName: String
+    lastName: String
   }
 
   extend type Query {
@@ -44,5 +44,6 @@ export default gql`
     updateUser(updateInput: UpdateInput!): User!
     deleteUser(id: ID!): Boolean!
     selfDeleteUser: Boolean!
+    makeAdmin(id: ID!): Boolean!
   }
 `;

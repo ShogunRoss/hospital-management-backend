@@ -9,16 +9,11 @@ export default gql`
     createdAt: Date!
   }
 
-  input EventInput {
-    deviceId: String!
-    action: Boolean!
-  }
-
   extend type Query {
     events: [Event!]!
   }
 
   extend type Mutation {
-    createEvent(eventInput: EventInput): Event
+    createEvent(deviceId: ID!): Event!
   }
 `;

@@ -1,3 +1,4 @@
-import * as user from './user';
+import { batchUsers } from './user';
+import { batchDevices } from './device';
 
-export default { user };
+export default { batchUsers, batchDevices };

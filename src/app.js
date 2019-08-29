@@ -3,14 +3,13 @@ import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import DataLoader from 'dataloader';
 import 'dotenv/config';
 
 import schema from './graphql/schema';
 import resolvers from './graphql/resolvers';
 import models from './models';
-import loaders from './loaders';
 import getMe from './utils/getMe';
+// import userLoader from './utils/userLoader';
 
 export default async () => {
   const port = process.env.PORT || 8000;
@@ -28,9 +27,9 @@ export default async () => {
       if (connection) {
         return {
           models,
-          loaders: {
-            user: new DataLoader(keys => loaders.user.batchUsers(keys, models))
-          }
+          // loaders: {
+          //   user: userLoader
+          // }
         };
       }
 
@@ -41,12 +40,12 @@ export default async () => {
           models,
           me,
           secret: process.env.SECRET,
-          loaders: {
-            user: new DataLoader(keys => loaders.user.batchUsers(keys, models))
-          }
+          // loaders: {
+          //   user: userLoader
+          // }
         };
       }
-    }
+    },
   });
 
   server.applyMiddleware({ app, path: '/graphql' });
@@ -54,7 +53,7 @@ export default async () => {
   await mongoose.connect(process.env.MONGO_DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: true
+    useFindAndModify: false,
   });
   app.listen({ port }, () => {
     console.log(`Apollo Server on http://localhost:${port}/graphql`);

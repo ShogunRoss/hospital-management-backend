@@ -7,5 +7,13 @@ export const isAuthenticated = (_, __, { me }) =>
 export const isAdmin = combineResolvers(
   isAuthenticated,
   (_, __, { me: { role } }) =>
-    role === 'ADMIN' ? skip : new ForbiddenError('Not authorized as admin.')
+    role === 'ADMIN' || role === 'OWNER'
+      ? skip
+      : new ForbiddenError('Not authorized as admin.')
+);
+
+export const isOwner = combineResolvers(
+  isAuthenticated,
+  (_, __, { me: { role } }) =>
+    role === 'OWNER' ? skip : new ForbiddenError('Not authorized as owner.')
 );

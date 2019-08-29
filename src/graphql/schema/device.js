@@ -3,7 +3,6 @@ import { gql } from 'apollo-server-express';
 export default gql`
   type Device {
     id: ID!
-    deviceId: String!
     title: String!
     model: String!
     manufacturer: String!
@@ -12,13 +11,14 @@ export default gql`
     startUseTime: Date!
     startUseState: Boolean!
     price: Int!
-    falcuty: String!
+    faculty: String!
     currentState: Boolean!
-    createEvents: [Event!]
+    createdEvents: [Event!]
+    createdAt: Date!
+    createdBy: User!
   }
 
   input DeviceInput {
-    deviceId: String!
     title: String!
     model: String!
     manufacturer: String!
@@ -27,17 +27,17 @@ export default gql`
     startUseTime: Date!
     startUseState: Boolean!
     price: Int!
-    falcuty: String!
+    faculty: String!
   }
 
   extend type Query {
     devices: [Device!]
-    device(deviceId: String!): Device!
+    device(id: ID!): Device!
   }
 
   extend type Mutation {
     addDevice(deviceInput: DeviceInput): Device
-    updateDevice(deviceInput: DeviceInput): Device
-    deleteDevice(deviceId: String!): Boolean!
+    updateDevice(id: ID!, deviceInput: DeviceInput): Device
+    deleteDevice(id: ID!): Boolean!
   }
 `;
