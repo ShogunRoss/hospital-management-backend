@@ -1,6 +1,6 @@
 import { combineResolvers } from 'graphql-resolvers';
 
-import { isAdmin } from '../../utils/authorization';
+import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { transformDevice } from '../../utils/transfrom';
 
 export default {
@@ -13,7 +13,7 @@ export default {
       });
     }),
 
-    device: combineResolvers(isAdmin, async (_, { id }, { models }) => {
+    device: combineResolvers(isAuthenticated, async (_, { id }, { models }) => {
       const device = await models.Device.findById(id);
 
       if (!device) {

@@ -19,14 +19,6 @@ export default gql`
   }
 
   input UserInput {
-    email: String!
-    password: String!
-    phone: String!
-    firstName: String!
-    lastName: String!
-  }
-
-  input UpdateInput {
     phone: String
     firstName: String
     lastName: String
@@ -39,9 +31,9 @@ export default gql`
   }
 
   extend type Mutation {
-    signUp(userInput: UserInput!): AuthData!
+    signUp(email: String!, password: String!): AuthData!
     signIn(email: String!, password: String!): AuthData!
-    updateUser(updateInput: UpdateInput!): User!
+    updateUser(UserInput: UserInput!): User!
     deleteUser(id: ID!): Boolean!
     selfDeleteUser: Boolean!
     makeAdmin(id: ID!): Boolean!

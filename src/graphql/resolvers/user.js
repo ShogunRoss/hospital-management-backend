@@ -33,17 +33,10 @@ export default {
   },
 
   Mutation: {
-    signUp: async (
-      _,
-      { userInput: { email, password, phone, firstName, lastName } },
-      { models, secret }
-    ) => {
+    signUp: async (_, { email, password }, { models, secret }) => {
       const user = await models.User.create({
         email,
         password,
-        phone,
-        firstName,
-        lastName,
       });
 
       return { token: createToken(user, secret) };
@@ -67,8 +60,8 @@ export default {
 
     updateUser: combineResolvers(
       isAuthenticated,
-      async (_, { updateInput }, { models, me }) => {
-        const user = await models.User.findByIdAndUpdate(me.id, updateInput, {
+      async (_, { userInput }, { models, me }) => {
+        const user = await models.User.findByIdAndUpdate(me.id, userInput, {
           new: true,
         });
         return transformUser(user);
