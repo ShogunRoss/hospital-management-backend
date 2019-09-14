@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 
-export default async (user, secret, expiresIn) => {
-  const { id, email, username, role } = user;
+export default async (user, expiresIn) => {
+  const { id, email, role } = user;
   return await jwt.sign(
-    { id, email, username, role },
-    secret,
+    { id, email, role },
+    process.env.SECRET,
     expiresIn && { expiresIn }
   );
 };

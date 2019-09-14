@@ -9,6 +9,7 @@ import schema from './graphql/schema';
 import resolvers from './graphql/resolvers';
 import models from './models';
 import getMe from './utils/getMe';
+import confirmEmail from './routes/confirmEmail';
 // import userLoader from './utils/userLoader';
 
 export default async () => {
@@ -25,6 +26,7 @@ export default async () => {
     resolvers,
     context: async ({ req, connection }) => {
       if (connection) {
+        // * connection is used for Graphql Subscriptions which we haven't implemented.
         return {
           models,
           // loaders: {
@@ -39,7 +41,7 @@ export default async () => {
         return {
           models,
           me,
-          secret: process.env.SECRET,
+          url: req.protocol + '://' + req.get('host'),
           // loaders: {
           //   user: userLoader
           // }
@@ -50,11 +52,14 @@ export default async () => {
 
   server.applyMiddleware({ app, path: '/graphql' });
 
+  app.get('/confirm/:token', confirmEmail);
+
   await mongoose.connect(process.env.MONGO_DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
   });
+
   app.listen({ port }, () => {
     console.log(`Apollo Server on http://localhost:${port}/graphql`);
   });

@@ -4,6 +4,8 @@ import { AuthenticationError, UserInputError } from 'apollo-server';
 import { isAdmin, isAuthenticated, isOwner } from '../../utils/authorization';
 import createToken from '../../utils/createToken';
 import { transformUser } from '../../utils/transfrom';
+import sendEmail from '../../utils/sendEmail';
+import createCofirmEmailLink from '../../utils/createCofirmEmailLink';
 
 export default {
   Query: {
@@ -33,16 +35,25 @@ export default {
   },
 
   Mutation: {
-    signUp: async (_, { email, password }, { models, secret }) => {
+    signUp: async (_, { email, password }, { models, url }) => {
+      const userAlreadyExist = await models.User.findOne({ email });
+
+      if (userAlreadyExist) {
+        throw new Error('Email is already taken.');
+      }
       const user = await models.User.create({
         email,
         password,
       });
 
-      return { token: createToken(user, secret) };
+      if (process.env.NODE_ENV !== 'test') {
+        await sendEmail(email, await createCofirmEmailLink(url, user.id));
+      }
+
+      return null;
     },
 
-    signIn: async (_, { email, password }, { models, secret }) => {
+    signIn: async (_, { email, password }, { models }) => {
       const user = await models.User.findOne({ email });
 
       if (!user) {
@@ -55,7 +66,7 @@ export default {
         throw new AuthenticationError('Invalid password.');
       }
 
-      return { token: createToken(user, secret) };
+      return { token: createToken(user) };
     },
 
     updateUser: combineResolvers(
@@ -94,6 +105,7 @@ export default {
     ),
 
     makeAdmin: combineResolvers(isOwner, async (_, { id }, { models }) => {
+      //! FIX ME: what's about OWNER role, what if someone make OWNER to become ADMIN
       const user = await models.User.findByIdAndUpdate(id, { role: 'ADMIN' });
 
       if (user) {

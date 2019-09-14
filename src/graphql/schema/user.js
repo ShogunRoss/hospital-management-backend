@@ -31,11 +31,11 @@ export default gql`
   }
 
   extend type Mutation {
-    signUp(email: String!, password: String!): AuthData!
+    signUp(email: String!, password: String!): Boolean
     signIn(email: String!, password: String!): AuthData!
     updateUser(UserInput: UserInput!): User!
-    deleteUser(id: ID!): Boolean!
-    selfDeleteUser: Boolean!
-    makeAdmin(id: ID!): Boolean!
+    deleteUser(id: ID!): Boolean
+    selfDeleteUser: Boolean
+    makeAdmin(id: ID!): Boolean
   }
 `;
