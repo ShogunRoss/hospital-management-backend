@@ -1,7 +1,7 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
@@ -10,28 +10,35 @@ import resolvers from './graphql/resolvers';
 import models from './models';
 import getMe from './utils/getMe';
 import confirmEmail from './routes/confirmEmail';
+import refreshToken from './routes/refreshToken';
 // import userLoader from './utils/userLoader';
 
-export default async () => {
+const App = async () => {
   const port = process.env.PORT || 8000;
   const app = express();
 
-  app.use(bodyParser.json());
-  app.use(cors());
+  app.use(cookieParser());
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    })
+  );
 
-  const server = new ApolloServer({
+  app.get('/', (_, res) => res.send('Welcome to hospital management backend.'));
+  app.get('/confirm/:token', confirmEmail);
+  app.post('/refresh-token', refreshToken);
+
+  const apolloServer = new ApolloServer({
     introspection: true,
     playground: true,
     typeDefs: schema,
     resolvers,
-    context: async ({ req, connection }) => {
+    context: async ({ req, res, connection }) => {
+      // * connection is used for Graphql Subscriptions which we haven't implemented.
       if (connection) {
-        // * connection is used for Graphql Subscriptions which we haven't implemented.
         return {
           models,
-          // loaders: {
-          //   user: userLoader
-          // }
         };
       }
 
@@ -42,17 +49,13 @@ export default async () => {
           models,
           me,
           url: req.protocol + '://' + req.get('host'),
-          // loaders: {
-          //   user: userLoader
-          // }
+          res,
         };
       }
     },
   });
 
-  server.applyMiddleware({ app, path: '/graphql' });
-
-  app.get('/confirm/:token', confirmEmail);
+  apolloServer.applyMiddleware({ app, cors: false });
 
   await mongoose.connect(process.env.MONGO_DB, {
     useNewUrlParser: true,
@@ -64,3 +67,7 @@ export default async () => {
     console.log(`Apollo Server on http://localhost:${port}/graphql`);
   });
 };
+
+App();
+
+export default App;

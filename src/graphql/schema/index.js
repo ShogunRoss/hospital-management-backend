@@ -7,6 +7,11 @@ import eventSchema from './event';
 const linkSchema = gql`
   scalar Date
 
+  type Error {
+    path: String!
+    message: String!
+  }
+
   type Query {
     _: Boolean
   }

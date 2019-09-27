@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
       ref: 'Event',
     },
   ],
+  tokenVersion: {
+    type: Number,
+    default: 0,
+  },
 });
 
 userSchema.pre('save', async function() {

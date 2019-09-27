@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 export default gql`
   type AuthData {
-    token: String!
+    accessToken: String!
   }
 
   type User {
@@ -16,6 +16,7 @@ export default gql`
     role: String
     confirmed: Boolean!
     createdEvents: [Event!]
+    tokenVersion: Int!
   }
 
   input UserInput {
@@ -33,6 +34,9 @@ export default gql`
   extend type Mutation {
     signUp(email: String!, password: String!): Boolean
     signIn(email: String!, password: String!): AuthData!
+    signOut: Boolean
+    sendForgotPasswordEmail(email: String!): Boolean
+    passwordChange(newPassword: String!): [Error!]
     updateUser(UserInput: UserInput!): User!
     deleteUser(id: ID!): Boolean
     selfDeleteUser: Boolean

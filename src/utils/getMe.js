@@ -7,7 +7,7 @@ export default async req => {
   if (authHeader) {
     const token = authHeader.split(' ')[1];
     try {
-      return await jwt.verify(token, process.env.SECRET);
+      return await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (e) {
       throw new AuthenticationError('Your session expired. Sign in again.');
     }

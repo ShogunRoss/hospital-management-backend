@@ -1,11 +1,16 @@
 import { combineResolvers } from 'graphql-resolvers';
 import { AuthenticationError, UserInputError } from 'apollo-server';
+import jwt from 'jsonwebtoken';
 
 import { isAdmin, isAuthenticated, isOwner } from '../../utils/authorization';
-import createToken from '../../utils/createToken';
+import { createAccessToken } from '../../utils/createToken';
 import { transformUser } from '../../utils/transfrom';
-import sendEmail from '../../utils/sendEmail';
-import createCofirmEmailLink from '../../utils/createCofirmEmailLink';
+import sendConfirmEmail from '../../utils/sendConfirmEmail';
+import createConfirmEmailLink from '../../utils/createConfirmEmailLink';
+import createForgotPasswordLink from '../../utils/createForgotPasswordLink';
+import sendForgotPasswordEmail from '../../utils/sendForgotPasswordEmail';
+import sendRefreshToken from '../../utils/sendRefreshToken';
+import { createRefreshToken } from '../../utils/createToken';
 
 export default {
   Query: {
@@ -47,17 +52,24 @@ export default {
       });
 
       if (process.env.NODE_ENV !== 'test') {
-        await sendEmail(email, await createCofirmEmailLink(url, user.id));
+        await sendConfirmEmail(email, await createConfirmEmailLink(url, user));
+      } else {
+        user.confirmed = true;
+        await user.save();
       }
 
       return null;
     },
 
-    signIn: async (_, { email, password }, { models }) => {
+    signIn: async (_, { email, password }, { models, res }) => {
       const user = await models.User.findOne({ email });
 
       if (!user) {
         throw new UserInputError('No user found with this login credentials.');
+      }
+
+      if (!user.confirmed) {
+        throw new Error('User still does not confirmed email');
       }
 
       const isValid = await user.validatePassword(password);
@@ -66,7 +78,60 @@ export default {
         throw new AuthenticationError('Invalid password.');
       }
 
-      return { token: createToken(user) };
+      sendRefreshToken(res, await createRefreshToken(user));
+
+      return { accessToken: await createAccessToken(user, '1h') };
+    },
+
+    signOut: async (_, __, { res }) => {
+      //?: Apply Redis to blacklist the revoked token. Follow instructions: https://dev.to/cea/using-redis-for-token-blacklisting-in-node-js-42g7 https://blog.hasura.io/best-practices-of-using-jwt-with-graphql/
+      console.log('signout');
+      sendRefreshToken(res, '');
+      return true;
+    },
+
+    sendForgotPasswordEmail: async (_, { email }, { models }) => {
+      const user = await models.User.findOne({ email });
+
+      // *: If check user avaibility here, we might expose our user emails to the attacker - so we will send to whatever email user enter to avoid this scheme.
+      // *: But it will take a lot of our Email API. So consider this in the future
+
+      if (!user) {
+        throw new Error('User do not exist');
+      }
+
+      await sendForgotPasswordEmail(
+        email,
+        await createForgotPasswordLink('http://localhost:3000', user)
+      );
+
+      return true;
+    },
+
+    passwordChange: async (_, { newPassword, token }, { models }) => {
+      try {
+        const { userId, password } = await jwt.verify(
+          token,
+          process.env.ACCESS_TOKEN_SECRET
+        );
+
+        if (userId) {
+          const user = await models.User.findById(userId);
+          if (user.password === password) {
+            //TODO: implement later
+            user.password = newPassword;
+            user.save();
+
+            return true;
+          } else {
+            throw new Error('Invalid Token');
+          }
+        }
+      } catch (err) {
+        if (err) {
+          throw err;
+        }
+      }
     },
 
     updateUser: combineResolvers(

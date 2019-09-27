@@ -2,5 +2,5 @@
 runtime: nodejs10
 env_variables:
   MONGO_DB: 'mongodb+srv://shogunross:truesoul1995@chatbotdatabase-y4vvz.gcp.mongodb.net/hospital-management?retryWrites=true'
-  SECRET: 'somesupersecretkey'
+  ACCESS_TOKEN_SECRET: 'somesupersecretkey'
 # [END runtime]
