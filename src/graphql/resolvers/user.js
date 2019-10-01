@@ -51,14 +51,15 @@ export default {
         password,
       });
 
+      const confirmEmailLink = await createConfirmEmailLink(url, user);
+
       if (process.env.NODE_ENV !== 'test') {
-        await sendConfirmEmail(email, await createConfirmEmailLink(url, user));
+        await sendConfirmEmail(email, confirmEmailLink);
       } else {
-        user.confirmed = true;
-        await user.save();
+        console.log(confirmEmailLink);
       }
 
-      return null;
+      return true;
     },
 
     signIn: async (_, { email, password }, { models, res }) => {
@@ -85,9 +86,27 @@ export default {
 
     signOut: async (_, __, { res }) => {
       //?: Apply Redis to blacklist the revoked token. Follow instructions: https://dev.to/cea/using-redis-for-token-blacklisting-in-node-js-42g7 https://blog.hasura.io/best-practices-of-using-jwt-with-graphql/
-      console.log('signout');
       sendRefreshToken(res, '');
       return true;
+    },
+
+    confirmEmail: async (_, { confirmToken }, { models }) => {
+      try {
+        const { userId } = await jwt.verify(
+          confirmToken,
+          process.env.CONFIRM_TOKEN_SECRET
+        );
+
+        if (!userId) {
+          throw new Error('Invalid token');
+        }
+
+        await models.User.findByIdAndUpdate(userId, { confirmed: true });
+
+        return true;
+      } catch (err) {
+        throw new Error(err);
+      }
     },
 
     sendForgotPasswordEmail: async (_, { email }, { models }) => {
@@ -99,33 +118,49 @@ export default {
       if (!user) {
         throw new Error('User do not exist');
       }
-
-      await sendForgotPasswordEmail(
-        email,
-        await createForgotPasswordLink('http://localhost:3000', user)
+      const forgotPasswordLink = await createForgotPasswordLink(
+        process.env.FRONTEND_URL,
+        user
       );
+
+      if (process.env.NODE_ENV !== 'test') {
+        await sendForgotPasswordEmail(email, forgotPasswordLink);
+      } else {
+        console.log(forgotPasswordLink);
+      }
 
       return true;
     },
 
-    passwordChange: async (_, { newPassword, token }, { models }) => {
+    changePassword: combineResolvers(
+      isAuthenticated,
+      async (_, { newPassword }, { models, me }) => {
+        await models.User.findByIdAndUpdate(me.id, {
+          password: newPassword,
+        });
+        return true;
+      }
+    ),
+
+    resetPassword: async (_, { newPassword, passwordToken }, { models }) => {
       try {
         const { userId, password } = await jwt.verify(
-          token,
-          process.env.ACCESS_TOKEN_SECRET
+          passwordToken,
+          process.env.PASSWORD_TOKEN_SECRET
         );
 
         if (userId) {
           const user = await models.User.findById(userId);
           if (user.password === password) {
-            //TODO: implement later
             user.password = newPassword;
-            user.save();
+            await user.save();
 
             return true;
           } else {
-            throw new Error('Invalid Token');
+            throw new Error('Invalid Token (password)');
           }
+        } else {
+          throw new Error('Invalid Token (userId)');
         }
       } catch (err) {
         if (err) {

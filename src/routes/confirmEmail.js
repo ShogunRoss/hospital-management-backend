@@ -2,13 +2,17 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user';
 
 export default async (req, res) => {
-  const { token } = req.params;
+  const { confirmToken } = req.params;
+  console.log(confirmToken);
   try {
-    const { userId } = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const { userId } = await jwt.verify(
+      confirmToken,
+      process.env.CONFIRM_TOKEN_SECRET
+    );
 
     if (userId) {
       await User.findByIdAndUpdate(userId, { confirmed: true });
-      res.send('200 - ok');
+      res.redirect(process.env.FRONTEND_URL + `/confirm/${confirmToken}`);
     } else {
       res.send('404 - invalid');
     }

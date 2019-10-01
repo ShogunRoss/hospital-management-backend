@@ -26,7 +26,7 @@ const App = async () => {
   );
 
   app.get('/', (_, res) => res.send('Welcome to hospital management backend.'));
-  app.get('/confirm/:token', confirmEmail);
+  app.get('/confirm/:confirmToken', confirmEmail);
   app.post('/refresh-token', refreshToken);
 
   const apolloServer = new ApolloServer({
