@@ -15,7 +15,6 @@ export default gql`
     createdAt: String!
     role: String
     confirmed: Boolean!
-    createdEvents: [Event!]
     tokenVersion: Int!
   }
 

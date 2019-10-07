@@ -5,13 +5,13 @@ export default async (req, res) => {
   const { confirmToken } = req.params;
   console.log(confirmToken);
   try {
-    const { userId } = await jwt.verify(
+    const { email } = await jwt.verify(
       confirmToken,
       process.env.CONFIRM_TOKEN_SECRET
     );
 
-    if (userId) {
-      await User.findByIdAndUpdate(userId, { confirmed: true });
+    if (email) {
+      await User.findOneAndUpdate({ email }, { confirmed: true });
       res.redirect(process.env.FRONTEND_URL + `/confirm/${confirmToken}`);
     } else {
       res.send('404 - invalid');

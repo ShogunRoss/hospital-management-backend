@@ -4,11 +4,15 @@ import jwt from 'jsonwebtoken';
 
 import { isAdmin, isAuthenticated, isOwner } from '../../utils/authorization';
 import { createAccessToken } from '../../utils/createToken';
-import { transformUser } from '../../utils/transfrom';
-import sendConfirmEmail from '../../utils/sendConfirmEmail';
-import createConfirmEmailLink from '../../utils/createConfirmEmailLink';
-import createForgotPasswordLink from '../../utils/createForgotPasswordLink';
-import sendForgotPasswordEmail from '../../utils/sendForgotPasswordEmail';
+import { transformUser } from '../../utils/transform';
+import {
+  sendConfirmEmail,
+  sendForgotPasswordEmail,
+} from '../../utils/sendEmail';
+import {
+  createConfirmEmailLink,
+  createForgotPasswordLink,
+} from '../../utils/createLink';
 import sendRefreshToken from '../../utils/sendRefreshToken';
 import { createRefreshToken } from '../../utils/createToken';
 
@@ -46,17 +50,27 @@ export default {
       if (userAlreadyExist) {
         throw new Error('Email is already taken.');
       }
-      const user = await models.User.create({
-        email,
-        password,
-      });
-
-      const confirmEmailLink = await createConfirmEmailLink(url, user);
+      const confirmEmailLink = await createConfirmEmailLink(url, email);
 
       if (process.env.NODE_ENV !== 'test') {
-        await sendConfirmEmail(email, confirmEmailLink);
+        try {
+          const info = await sendConfirmEmail(email, confirmEmailLink);
+
+          if (info) {
+            await models.User.create({
+              email,
+              password,
+            });
+          }
+        } catch (err) {
+          throw new Error(err);
+        }
       } else {
         console.log(confirmEmailLink);
+        await models.User.create({
+          email,
+          password,
+        });
       }
 
       return true;
@@ -132,16 +146,6 @@ export default {
       return true;
     },
 
-    changePassword: combineResolvers(
-      isAuthenticated,
-      async (_, { newPassword }, { models, me }) => {
-        await models.User.findByIdAndUpdate(me.id, {
-          password: newPassword,
-        });
-        return true;
-      }
-    ),
-
     resetPassword: async (_, { newPassword, passwordToken }, { models }) => {
       try {
         const { userId, password } = await jwt.verify(
@@ -168,6 +172,16 @@ export default {
         }
       }
     },
+
+    changePassword: combineResolvers(
+      isAuthenticated,
+      async (_, { newPassword }, { models, me }) => {
+        await models.User.findByIdAndUpdate(me.id, {
+          password: newPassword,
+        });
+        return true;
+      }
+    ),
 
     updateUser: combineResolvers(
       isAuthenticated,
@@ -204,8 +218,7 @@ export default {
       }
     ),
 
-    makeAdmin: combineResolvers(isOwner, async (_, { id }, { models }) => {
-      //! FIX ME: what's about OWNER role, what if someone make OWNER to become ADMIN
+    makeAdmin: combineResolvers(isAdmin, async (_, { id }, { models }) => {
       const user = await models.User.findByIdAndUpdate(id, { role: 'ADMIN' });
 
       if (user) {

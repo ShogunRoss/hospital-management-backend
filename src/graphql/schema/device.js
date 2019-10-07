@@ -10,10 +10,11 @@ export default gql`
     manufacturedYear: String!
     startUseTime: Date!
     startUseState: Boolean!
-    price: Int!
     faculty: String!
-    currentState: Boolean!
-    createdEvents: [Event!]
+    originalPrice: Int!
+    currentPrice: Int!
+    activeState: Boolean!
+    avaibility: String!
     createdAt: Date!
     createdBy: User!
   }
@@ -26,8 +27,8 @@ export default gql`
     manufacturedYear: String!
     startUseTime: Date!
     startUseState: Boolean!
-    price: Int!
     faculty: String!
+    originalPrice: Int!
   }
 
   extend type Query {
@@ -37,7 +38,7 @@ export default gql`
 
   extend type Mutation {
     addDevice(deviceInput: DeviceInput): Device
-    updateDevice(id: ID!, deviceInput: DeviceInput): Device
+    editDevice(id: ID!, deviceInput: DeviceInput): Device
     deleteDevice(id: ID!): Boolean!
   }
 `;

@@ -1,19 +1,18 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-  type Event {
+  type AccountantEvent {
     id: ID!
     creator: User!
     device: Device!
-    action: Boolean!
     createdAt: Date!
   }
 
   extend type Query {
-    events: [Event!]!
+    accountantEvents: [AccountantEvent!]!
   }
 
   extend type Mutation {
-    createEvent(deviceId: ID!): Event!
+    createAccountantEvent(deviceId: ID!): AccountantEvent!
   }
 `;

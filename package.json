@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest --watchAll",
-    "start": "cross-env NODE_ENV=test nodemon -r esm .",
+    "watch": "cross-env NODE_ENV=test nodemon -r esm .",
+    "start": "cross-env NODE_ENV=production nodemon -r esm .",
     "gcloud-deploy": "gcloud app deploy"
   },
   "keywords": [],

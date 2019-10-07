@@ -1,7 +1,7 @@
 import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
-import { transformDevice } from '../../utils/transfrom';
+import { transformDevice } from '../../utils/transform';
 
 export default {
   Query: {
@@ -29,15 +29,16 @@ export default {
       isAdmin,
       async (_, { deviceInput }, { models, me }) => {
         const device = await models.Device.create({
-          ...deviceInput,
           createdBy: me.id,
+          ...deviceInput,
+          currentPrice: deviceInput.originalPrice,
         });
 
         return transformDevice(device);
       }
     ),
 
-    updateDevice: combineResolvers(
+    editDevice: combineResolvers(
       isAdmin,
       async (_, { id, deviceInput }, { models }) => {
         const device = await models.Device.findByIdAndUpdate(id, deviceInput, {

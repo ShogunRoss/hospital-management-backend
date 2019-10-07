@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema({
+const accountantEventSchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -15,8 +15,8 @@ const eventSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 
-export default mongoose.model('Event', eventSchema);
+export default mongoose.model('AccountantEvent', accountantEventSchema);

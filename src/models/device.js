@@ -27,27 +27,28 @@ const deviceSchema = new mongoose.Schema({
     type: Boolean,
     require: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
   faculty: {
     type: String,
     required: true,
   },
-  currentState: {
+  originalPrice: {
+    type: Number,
+    required: true,
+  },
+  currentPrice: {
+    type: Number,
+  },
+  activeState: {
     type: Boolean,
     default: false,
   },
-  createdEvents: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Event',
-    },
-  ],
+  avaibility: {
+    type: String,
+    default: 'active',
+  },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

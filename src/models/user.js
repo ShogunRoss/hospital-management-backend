@@ -6,22 +6,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
+    match: [
+      /^([\w-\.]+)@([\w-]+\.+[\w-]{2,5})?$/,
+      'Please fill a valid email address',
+    ],
   },
   password: {
     type: String,
     required: true,
-    minlength: 7,
+    minlength: 6,
     maxLength: 42,
-  },
-  phone: {
-    type: String,
-    // required: true,
   },
   firstName: {
     type: String,
     // required: true,
   },
   lastName: {
+    type: String,
+    // required: true,
+  },
+  phone: {
     type: String,
     // required: true,
   },
@@ -35,14 +39,8 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
-  createdEvents: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Event',
-    },
-  ],
   tokenVersion: {
     type: Number,
     default: 0,
@@ -51,8 +49,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function() {
   // use arrow function here will cause a bug
-  let user = this;
-  user.password = await bcrypt.hash(user.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.validatePassword = async function(password) {

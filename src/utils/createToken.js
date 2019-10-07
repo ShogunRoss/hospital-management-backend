@@ -15,11 +15,8 @@ export const createRefreshToken = async user => {
   );
 };
 //TODO: confirmToken will last forever because we don't know when they activate their account
-export const createConfirmToken = async user => {
-  return await jwt.sign(
-    { userId: user.id, email: user.email },
-    process.env.CONFIRM_TOKEN_SECRET
-  );
+export const createConfirmToken = async email => {
+  return await jwt.sign({ email }, process.env.CONFIRM_TOKEN_SECRET);
 };
 
 export const createForgotPasswordToken = async user => {
