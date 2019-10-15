@@ -35,7 +35,7 @@ export default gql`
     signIn(email: String!, password: String!): AuthData!
     signOut: Boolean
     confirmEmail(confirmToken: String!): Boolean
-    sendForgotPasswordEmail(email: String!): Boolean
+    forgotPassword(email: String!): Boolean
     changePassword(newPassword: String!): Boolean
     resetPassword(newPassword: String!, passwordToken: String!): Boolean
     updateUser(UserInput: UserInput!): User!

@@ -1,8 +1,9 @@
 import { combineResolvers } from 'graphql-resolvers';
 import { AuthenticationError, UserInputError } from 'apollo-server';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-import { isAdmin, isAuthenticated, isOwner } from '../../utils/authorization';
+import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { createAccessToken } from '../../utils/createToken';
 import { transformUser } from '../../utils/transform';
 import {
@@ -123,7 +124,7 @@ export default {
       }
     },
 
-    sendForgotPasswordEmail: async (_, { email }, { models }) => {
+    forgotPassword: async (_, { email }, { models }) => {
       const user = await models.User.findOne({ email });
 
       // *: If check user avaibility here, we might expose our user emails to the attacker - so we will send to whatever email user enter to avoid this scheme.
@@ -138,6 +139,7 @@ export default {
       );
 
       if (process.env.NODE_ENV !== 'test') {
+        console.log(forgotPasswordLink);
         await sendForgotPasswordEmail(email, forgotPasswordLink);
       } else {
         console.log(forgotPasswordLink);
@@ -176,8 +178,9 @@ export default {
     changePassword: combineResolvers(
       isAuthenticated,
       async (_, { newPassword }, { models, me }) => {
+        let password = await bcrypt.hash(newPassword, 10);
         await models.User.findByIdAndUpdate(me.id, {
-          password: newPassword,
+          password,
         });
         return true;
       }
