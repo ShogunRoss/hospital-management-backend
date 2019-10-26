@@ -6,6 +6,7 @@ import activeEventSchema from './activeEvent';
 import maintainanceSchema from './maintainanceEvent';
 import liquidationSchema from './liquidationEvent';
 import accountantSchema from './accountantEvent';
+import fileSchema from './file';
 
 const linkSchema = gql`
   scalar Date
@@ -32,4 +33,5 @@ export default [
   maintainanceSchema,
   liquidationSchema,
   accountantSchema,
+  fileSchema,
 ];

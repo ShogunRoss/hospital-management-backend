@@ -11,7 +11,11 @@ import models from './models';
 import getMe from './utils/getMe';
 import confirmEmail from './routes/confirmEmail';
 import refreshToken from './routes/refreshToken';
+import { existsSync, mkdirSync } from 'fs';
+import path from 'path';
 // import userLoader from './utils/userLoader';
+
+const imagesDir = path.join(__dirname, '../images');
 
 const App = async () => {
   const port = process.env.PORT || 8000;
@@ -55,6 +59,8 @@ const App = async () => {
     },
   });
 
+  existsSync(imagesDir) || mkdirSync(imagesDir);
+  app.use('/images', express.static(imagesDir));
   apolloServer.applyMiddleware({ app, cors: false });
 
   await mongoose.connect(process.env.MONGO_DB, {

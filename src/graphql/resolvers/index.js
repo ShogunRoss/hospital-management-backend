@@ -5,6 +5,7 @@ import deviceResolvers from './device';
 import activeEventResolvers from './activeEvent';
 import maintainEventResolvers from './maintainanceEvent';
 import accountantEventResolvers from './accountantEvent';
+import fileResolvers from './file';
 
 const customScalarResolver = {
   Date: GraphQLDateTime,
@@ -17,4 +18,5 @@ export default [
   activeEventResolvers,
   maintainEventResolvers,
   accountantEventResolvers,
+  fileResolvers,
 ];
