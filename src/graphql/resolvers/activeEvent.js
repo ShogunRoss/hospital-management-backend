@@ -42,11 +42,11 @@ export default {
       async (_, { deviceId }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
 
-        if (device.avaibility === 'maintaining') {
+        if (device.availability === 'maintaining') {
           throw new Error('Device is under maintainance!');
         }
 
-        if (device.avaibility === 'liquidated') {
+        if (device.availability === 'liquidated') {
           throw new Error('Device has been liquidated!');
         }
 

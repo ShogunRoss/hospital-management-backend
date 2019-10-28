@@ -42,7 +42,7 @@ const deviceSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  avaibility: {
+  availability: {
     type: String,
     default: 'active',
   },

@@ -60,7 +60,7 @@ export default {
       async (_, { deviceId, maintainanceInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
 
-        if (device.avaibility === 'liquidated') {
+        if (device.availability === 'liquidated') {
           throw new Error('Device has been liquidated!');
         }
 
@@ -70,7 +70,7 @@ export default {
           );
         }
 
-        const isDeviceMaintained = device.avaibility === 'maintaining';
+        const isDeviceMaintained = device.availability === 'maintaining';
         let maintainedInterval = 0;
 
         if (isDeviceMaintained) {
@@ -89,9 +89,9 @@ export default {
           }
 
           maintainedInterval = Date.now() - lastestStartEvent.createdAt;
-          device.avaibility = 'working';
+          device.availability = 'working';
         } else {
-          device.avaibility = 'maintaining';
+          device.availability = 'maintaining';
         }
 
         const event = await models.MaintainanceEvent.create({
@@ -113,11 +113,11 @@ export default {
       async (_, { deviceId, maintainanceInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
 
-        if (device.avaibility === 'liquidated') {
+        if (device.availability === 'liquidated') {
           throw new Error('Device has been liquidated!');
         }
 
-        if (device.avaibility === 'maintaining') {
+        if (device.availability === 'maintaining') {
           // TODO: Handle this situation in the future
           throw new Error('Device is already maintaining!');
         }
@@ -135,7 +135,7 @@ export default {
           maintainance: maintainanceInfo,
         });
 
-        device.avaibility = 'maintaining';
+        device.availability = 'maintaining';
         await device.save();
 
         return transformEvent(event);

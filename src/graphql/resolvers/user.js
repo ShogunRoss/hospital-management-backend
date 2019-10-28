@@ -127,7 +127,7 @@ export default {
     forgotPassword: async (_, { email }, { models }) => {
       const user = await models.User.findOne({ email });
 
-      // *: If check user avaibility here, we might expose our user emails to the attacker - so we will send to whatever email user enter to avoid this scheme.
+      // *: If check user availability here, we might expose our user emails to the attacker - so we will send to whatever email user enter to avoid this scheme.
       // *: But it will take a lot of our Email API. So consider this in the future
 
       if (!user) {

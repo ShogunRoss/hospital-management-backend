@@ -14,7 +14,7 @@ export default gql`
     originalPrice: Int!
     currentPrice: Int!
     activeState: Boolean!
-    avaibility: String!
+    availability: String!
     createdAt: Date!
     createdBy: User!
   }
