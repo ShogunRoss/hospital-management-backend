@@ -9,11 +9,11 @@ export default gql`
     id: ID!
     email: String!
     password: String
-    phone: String!
-    firstName: String!
-    lastName: String!
+    phone: String
+    firstName: String
+    lastName: String
     createdAt: String!
-    role: String
+    role: String!
     confirmed: Boolean!
     tokenVersion: Int!
   }
@@ -26,8 +26,8 @@ export default gql`
 
   extend type Query {
     users: [User!]
-    user(id: ID!): User
-    me: User
+    user(id: ID!): User!
+    me: User!
   }
 
   extend type Mutation {
