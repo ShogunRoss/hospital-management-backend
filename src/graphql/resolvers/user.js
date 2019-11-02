@@ -1,5 +1,5 @@
 import { combineResolvers } from 'graphql-resolvers';
-import { AuthenticationError, UserInputError } from 'apollo-server';
+import { ApolloError, UserInputError } from 'apollo-server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -29,19 +29,21 @@ export default {
 
     user: async (_, { id }, { models }) => {
       const user = await models.User.findById(id);
+      if (!user) {
+        throw new UserInputError('No user found with this id.', {
+          name: 'NoUserFound',
+          invalidArg: 'id',
+        });
+      }
 
       return transformUser(user);
     },
 
-    me: async (_, __, { models, me }) => {
-      if (!me) {
-        return null;
-      }
-
+    me: combineResolvers(isAuthenticated, async (_, __, { models, me }) => {
       const user = await models.User.findById(me.id);
 
       return transformUser(user);
-    },
+    }),
   },
 
   Mutation: {
@@ -49,22 +51,21 @@ export default {
       const userAlreadyExist = await models.User.findOne({ email });
 
       if (userAlreadyExist) {
-        throw new Error('Email is already taken.');
+        throw new UserInputError('Email is already taken.', {
+          name: 'UserAlreadyExist',
+          invalidArg: 'email',
+        });
       }
       const confirmEmailLink = await createConfirmEmailLink(url, email);
 
       if (process.env.NODE_ENV !== 'test') {
-        try {
-          const info = await sendConfirmEmail(email, confirmEmailLink);
+        const info = await sendConfirmEmail(email, confirmEmailLink);
 
-          if (info) {
-            await models.User.create({
-              email,
-              password,
-            });
-          }
-        } catch (err) {
-          throw new Error(err);
+        if (info) {
+          await models.User.create({
+            email,
+            password,
+          });
         }
       } else {
         console.log(confirmEmailLink);
@@ -81,17 +82,27 @@ export default {
       const user = await models.User.findOne({ email });
 
       if (!user) {
-        throw new UserInputError('No user found with this login credentials.');
+        throw new UserInputError('No user found with this login credentials.', {
+          name: 'NoUserFound',
+          invalidArg: 'email',
+        });
       }
 
       if (!user.confirmed) {
-        throw new Error('User still does not confirmed email');
+        throw new ApolloError(
+          'User still does not confirmed email',
+          'NOT_CONFIRMED',
+          { name: 'NotConfirmed' }
+        );
       }
 
       const isValid = await user.validatePassword(password);
 
       if (!isValid) {
-        throw new AuthenticationError('Invalid password.');
+        throw new UserInputError('Invalid password.', {
+          name: 'InvalidPassword',
+          invalidArg: 'password',
+        });
       }
 
       sendRefreshToken(res, await createRefreshToken(user));
@@ -106,22 +117,22 @@ export default {
     },
 
     confirmEmail: async (_, { confirmToken }, { models }) => {
-      try {
-        const { userId } = await jwt.verify(
-          confirmToken,
-          process.env.CONFIRM_TOKEN_SECRET
+      let { userId } = await jwt.verify(
+        confirmToken,
+        process.env.CONFIRM_TOKEN_SECRET
+      );
+
+      if (!userId) {
+        throw new ApolloError(
+          'Invalid confirm token',
+          'INVALID_CONFIRM_TOKEN',
+          { name: 'InvalidConfirmToken' }
         );
-
-        if (!userId) {
-          throw new Error('Invalid token');
-        }
-
-        await models.User.findByIdAndUpdate(userId, { confirmed: true });
-
-        return true;
-      } catch (err) {
-        throw new Error(err);
       }
+
+      await models.User.findByIdAndUpdate(userId, { confirmed: true });
+
+      return true;
     },
 
     forgotPassword: async (_, { email }, { models }) => {
@@ -131,8 +142,12 @@ export default {
       // *: But it will take a lot of our Email API. So consider this in the future
 
       if (!user) {
-        throw new Error('User do not exist');
+        throw new UserInputError('User do not exist', {
+          name: 'NoUserFound',
+          invalidArg: 'email',
+        });
       }
+
       const forgotPasswordLink = await createForgotPasswordLink(
         process.env.FRONTEND_URL,
         user
@@ -149,30 +164,25 @@ export default {
     },
 
     resetPassword: async (_, { newPassword, passwordToken }, { models }) => {
-      try {
-        const { userId, password } = await jwt.verify(
-          passwordToken,
-          process.env.PASSWORD_TOKEN_SECRET
-        );
+      const { userId, password } = await jwt.verify(
+        passwordToken,
+        process.env.PASSWORD_TOKEN_SECRET
+      );
 
-        if (userId) {
-          const user = await models.User.findById(userId);
-          if (user.password === password) {
-            user.password = newPassword;
-            await user.save();
-
-            return true;
-          } else {
-            throw new Error('Invalid Token (password)');
-          }
-        } else {
-          throw new Error('Invalid Token (userId)');
-        }
-      } catch (err) {
-        if (err) {
-          throw err;
+      if (userId) {
+        const user = await models.User.findById(userId);
+        if (user.password === password) {
+          user.password = newPassword;
+          await user.save();
+          return true;
         }
       }
+
+      throw new ApolloError(
+        'Invalid password token',
+        'INVALID_PASSWORD_TOKEN',
+        { name: 'InvalidPasswordToken' }
+      );
     },
 
     changePassword: combineResolvers(
@@ -203,7 +213,10 @@ export default {
         await user.remove();
         return true;
       } else {
-        return false;
+        throw new UserInputError('User do not exist', {
+          name: 'NoUserFound',
+          invalidArg: 'email',
+        });
       }
     }),
 
@@ -216,7 +229,10 @@ export default {
           await user.remove();
           return true;
         } else {
-          return false;
+          throw new UserInputError('User do not exist', {
+            name: 'NoUserFound',
+            invalidArg: 'email',
+          });
         }
       }
     ),
@@ -228,10 +244,16 @@ export default {
         if (user.role !== 'ADMIN') {
           return true;
         } else {
-          throw new Error('User is already an Admin.');
+          throw new UserInputError('User is already an Admin.', {
+            name: 'UserAlreadyAdmin',
+            invalidArg: 'id',
+          });
         }
       } else {
-        throw new Error('User does not exist.');
+        throw new UserInputError('User do not exist', {
+          name: 'NoUserFound',
+          invalidArg: 'id',
+        });
       }
     }),
   },

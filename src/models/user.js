@@ -45,6 +45,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  avatar: {
+    type: String,
+  },
 });
 
 userSchema.pre('save', async function() {

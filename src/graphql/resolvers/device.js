@@ -2,6 +2,8 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { transformDevice } from '../../utils/transform';
+import { UserInputError } from 'apollo-server';
+import genQRCode from '../../utils/genQRCode';
 
 export default {
   Query: {
@@ -17,7 +19,10 @@ export default {
       const device = await models.Device.findById(id);
 
       if (!device) {
-        throw new Error('Device does not exist.');
+        throw new UserInputError('Device does not exist.', {
+          name: 'NoDeviceFound',
+          invalidArg: 'id',
+        });
       }
 
       return transformDevice(device);
@@ -34,7 +39,10 @@ export default {
           currentPrice: deviceInput.originalPrice,
         });
 
-        return transformDevice(device);
+        device.qrcode = genQRCode(device.id);
+        const result = await device.save();
+
+        return transformDevice(result);
       }
     ),
 
@@ -56,7 +64,10 @@ export default {
         await device.remove();
         return true;
       } else {
-        return false;
+        throw new UserInputError('Device does not exist.', {
+          name: 'NoDeviceFound',
+          invalidArg: 'id',
+        });
       }
     }),
   },

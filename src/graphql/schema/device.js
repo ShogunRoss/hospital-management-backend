@@ -15,6 +15,7 @@ export default gql`
     currentPrice: Int!
     activeState: Boolean!
     availability: String!
+    qrcode: String!
     createdAt: Date!
     createdBy: User!
   }

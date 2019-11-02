@@ -13,5 +13,6 @@ export default gql`
 
   extend type Mutation {
     singleUpload(file: Upload!): Boolean
+    avatarUpload(file: Upload!): Boolean
   }
 `;

@@ -2,6 +2,7 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
+import { UserInputError } from 'apollo-server';
 
 export default {
   Query: {
@@ -17,7 +18,6 @@ export default {
       isAdmin,
       async (_, { userId }, { models }) => {
         const events = await models.ActiveEvent.find({ creator: userId });
-        console.log(events);
         return events.map(event => {
           return transformEvent(event);
         });
@@ -28,7 +28,6 @@ export default {
       isAdmin,
       async (_, { deviceId }, { models }) => {
         const events = await models.ActiveEvent.find({ device: deviceId });
-        console.log(events);
         return events.map(event => {
           return transformEvent(event);
         });
@@ -43,11 +42,17 @@ export default {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'maintaining') {
-          throw new Error('Device is under maintainance!');
+          throw new UserInputError('Device is under maintainance!', {
+            name: 'DeviceUnderMaintainance',
+            invalidArg: 'deviceId',
+          });
         }
 
         if (device.availability === 'liquidated') {
-          throw new Error('Device has been liquidated!');
+          throw new UserInputError('Device has been liquidated!', {
+            name: 'DeviceLiquidated',
+            invalidArg: 'deviceId',
+          });
         }
 
         const actionType = !device.activeState;

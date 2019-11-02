@@ -3,5 +3,5 @@ node_modules/
 yarn-error.log*
 .idea/
 .vscode/
-images/
+assets/
 package-lock.json

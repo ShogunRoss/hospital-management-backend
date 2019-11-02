@@ -2,6 +2,7 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
+import { UserInputError } from 'apollo-server';
 
 export default {
   Query: {
@@ -17,7 +18,6 @@ export default {
       isAdmin,
       async (_, { userId }, { models }) => {
         const events = await models.MaintainanceEvent.find({ creator: userId });
-        console.log(events);
         return events.map(event => {
           return transformEvent(event);
         });
@@ -30,7 +30,6 @@ export default {
         const events = await models.MaintainanceEvent.find({
           device: deviceId,
         });
-        console.log(events);
         return events.map(event => {
           return transformEvent(event);
         });
@@ -65,8 +64,12 @@ export default {
         }
 
         if (device.activeState) {
-          throw new Error(
-            'Device still on! You should turn it off before continue!'
+          throw new UserInputError(
+            'Device still on! You should turn it off before continue!',
+            {
+              name: 'DeviceStillOn',
+              invalidArg: 'deviceId',
+            }
           );
         }
 
@@ -114,17 +117,27 @@ export default {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'liquidated') {
-          throw new Error('Device has been liquidated!');
+          throw new UserInputError('Device has been liquidated!', {
+            name: 'DeviceLiquidated',
+            invalidArg: 'deviceId',
+          });
         }
 
         if (device.availability === 'maintaining') {
           // TODO: Handle this situation in the future
-          throw new Error('Device is already maintaining!');
+          throw new UserInputError('Device is under maintainance!', {
+            name: 'DeviceUnderMaintainance',
+            invalidArg: 'deviceId',
+          });
         }
 
         if (device.activeState) {
-          throw new Error(
-            'Device still on! You should turn it off before continue!'
+          throw new UserInputError(
+            'Device still on! You should turn it off before continue!',
+            {
+              name: 'DeviceStillOn',
+              invalidArg: 'deviceId',
+            }
           );
         }
 

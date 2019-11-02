@@ -46,6 +46,9 @@ const deviceSchema = new mongoose.Schema({
     type: String,
     default: 'active',
   },
+  qrcode: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

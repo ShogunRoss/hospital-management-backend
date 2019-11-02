@@ -15,7 +15,12 @@ import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 // import userLoader from './utils/userLoader';
 
-const imagesDir = path.join(__dirname, '../images');
+const assetsDirs = {
+  assets: path.join(__dirname, '../assets'),
+  avatars: path.join(__dirname, '../assets/images'),
+  files: path.join(__dirname, '../assets/files'),
+  qrcodes: path.join(__dirname, '../assets/qrcodes'),
+};
 
 const App = async () => {
   const port = process.env.PORT || 8000;
@@ -59,8 +64,11 @@ const App = async () => {
     },
   });
 
-  existsSync(imagesDir) || mkdirSync(imagesDir);
-  app.use('/images', express.static(imagesDir));
+  Object.entries(assetsDirs).forEach(([key, value]) => {
+    existsSync(value) || mkdirSync(value);
+    key !== 'assets' && app.use(`/${key}`, express.static(value));
+  });
+
   apolloServer.applyMiddleware({ app, cors: false });
 
   await mongoose.connect(process.env.MONGO_DB, {

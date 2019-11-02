@@ -16,6 +16,7 @@ export default gql`
     role: String!
     confirmed: Boolean!
     tokenVersion: Int!
+    avatar: String
   }
 
   input UserInput {
