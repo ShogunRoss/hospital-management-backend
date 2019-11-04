@@ -187,11 +187,19 @@ export default {
 
     changePassword: combineResolvers(
       isAuthenticated,
-      async (_, { newPassword }, { models, me }) => {
-        let password = await bcrypt.hash(newPassword, 10);
-        await models.User.findByIdAndUpdate(me.id, {
-          password,
-        });
+      async (_, { oldPassword, newPassword }, { models, me }) => {
+        const user = await models.User.findById(me.id);
+        const isValid = await user.validatePassword(oldPassword);
+
+        if (!isValid) {
+          throw new UserInputError('Invalid old password.', {
+            name: 'InvalidOldPassword',
+            invalidArg: 'oldPassword',
+          });
+        }
+
+        user.password = newPassword;
+        user.save();
         return true;
       }
     ),
