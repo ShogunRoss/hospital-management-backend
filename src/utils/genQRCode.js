@@ -6,7 +6,10 @@ export default text => {
   qrcode.toFile(
     path.join('./assets/qrcodes', filename),
     text,
-    { margin: 2 },
+    {
+      margin: 2,
+      errorCorrectionLevel: 'H',
+    },
     err => {
       if (err) throw err;
     }
