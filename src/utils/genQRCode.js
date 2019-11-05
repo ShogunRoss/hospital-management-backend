@@ -2,7 +2,7 @@ import qrcode from 'qrcode';
 import path from 'path';
 
 export default text => {
-  const filename = `qrcode_${Date.now()}_${text}.png`;
+  const filename = `${text}_${Date.now()}.png`;
   qrcode.toFile(
     path.join('./assets/qrcodes', filename),
     text,
@@ -14,5 +14,5 @@ export default text => {
       if (err) throw err;
     }
   );
-  return `${process.env.FRONTEND_URL}/qrcodes/${filename}`;
+  return `${process.env.BACKEND_URL}/qrcodes/${filename}`;
 };

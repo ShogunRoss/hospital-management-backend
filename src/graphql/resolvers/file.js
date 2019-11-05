@@ -1,4 +1,4 @@
-import { createWriteStream } from 'fs';
+import { createWriteStream, unlinkSync } from 'fs';
 import path from 'path';
 import { UserInputError } from 'apollo-server';
 import { combineResolvers } from 'graphql-resolvers';
@@ -42,7 +42,20 @@ export default {
           });
         }
 
-        const newFilename = 'avatar_' + Date.now() + '_' + filename;
+        const user = await models.User.findById(me.id);
+        if (user.avatar) {
+          try {
+            unlinkSync(
+              user.avatar.replace(process.env.BACKEND_URL, './assets')
+            );
+          } catch (err) {
+            console.log(err);
+          }
+        }
+
+        const newFilename = `${me.id}_${Date.now()}.${filename
+          .split('.')
+          .pop()}`;
 
         await new Promise(res =>
           createReadStream()
@@ -50,9 +63,9 @@ export default {
             .on('close', res)
         );
 
-        await models.User.findByIdAndUpdate(me.id, {
-          avatar: `${process.env.FRONTEND_URL}/avatars/${newFilename}`,
-        });
+        user.avatar = `${process.env.BACKEND_URL}/avatars/${newFilename}`;
+
+        await user.save();
 
         return true;
       }

@@ -17,7 +17,7 @@ import path from 'path';
 
 const assetsDirs = {
   assets: path.join(__dirname, '../assets'),
-  avatars: path.join(__dirname, '../assets/images'),
+  avatars: path.join(__dirname, '../assets/avatars'),
   files: path.join(__dirname, '../assets/files'),
   qrcodes: path.join(__dirname, '../assets/qrcodes'),
 };
