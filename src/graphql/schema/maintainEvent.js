@@ -23,7 +23,7 @@ export default gql`
     device: Device!
     actionType: Boolean!
     createdAt: Date!
-    maintain: Maintain!
+    maintainInfo: Maintain!
     maintainInterval: Int!
   }
 

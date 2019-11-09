@@ -21,7 +21,7 @@ const maintainEventSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  maintain: {
+  maintainInfo: {
     name: {
       type: String,
       default: '',

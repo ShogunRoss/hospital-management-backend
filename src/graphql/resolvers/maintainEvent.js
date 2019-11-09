@@ -102,7 +102,7 @@ export default {
           creator: me.id,
           device: deviceId,
           maintainInterval,
-          maintain: maintainInfo,
+          maintainInfo,
         });
 
         await device.save();
@@ -145,7 +145,7 @@ export default {
           actionType: true,
           creator: me.id,
           device: deviceId,
-          maintain: maintainInfo,
+          maintainInfo,
         });
 
         device.availability = 'maintaining';
