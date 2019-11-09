@@ -14,7 +14,7 @@ export default gql`
     creator: User!
     device: Device!
     createdAt: Date!
-    maintainance: Liquidation!
+    maintain: Liquidation!
   }
 
   extend type Query {

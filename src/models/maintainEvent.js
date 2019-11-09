@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const maintainanceEventSchema = new mongoose.Schema({
+const maintainEventSchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -17,11 +17,11 @@ const maintainanceEventSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  maintainedInterval: {
+  maintainInterval: {
     type: Number,
     default: 0,
   },
-  maintainance: {
+  maintain: {
     name: {
       type: String,
       default: '',
@@ -45,4 +45,4 @@ const maintainanceEventSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model('MaintainanceEvent', maintainanceEventSchema);
+export default mongoose.model('MaintainEvent', maintainEventSchema);

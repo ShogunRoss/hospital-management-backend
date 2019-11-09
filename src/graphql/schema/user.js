@@ -39,7 +39,7 @@ export default gql`
     forgotPassword(email: String!): Boolean
     changePassword(oldPassword: String!, newPassword: String!): Boolean
     resetPassword(newPassword: String!, passwordToken: String!): Boolean
-    updateUser(UserInput: UserInput!): User!
+    updateUser(userInput: UserInput!): User
     deleteUser(id: ID!): Boolean
     selfDeleteUser: Boolean
     makeAdmin(id: ID!): Boolean

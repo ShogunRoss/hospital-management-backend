@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-  type Maintainance {
+  type Maintain {
     name: String
     address: String
     phone: String
@@ -9,7 +9,7 @@ export default gql`
     cost: Int
   }
 
-  input MaintainanceInfo {
+  input MaintainInfo {
     name: String
     address: String
     phone: String
@@ -17,31 +17,31 @@ export default gql`
     cost: Int
   }
 
-  type MaintainanceEvent {
+  type MaintainEvent {
     id: ID!
     creator: User!
     device: Device!
     actionType: Boolean!
     createdAt: Date!
-    maintainance: Maintainance!
-    maintainedInterval: Int!
+    maintain: Maintain!
+    maintainInterval: Int!
   }
 
   extend type Query {
-    maintainanceEvents: [MaintainanceEvent!]!
-    maintainanceEventsByUser: [MaintainanceEvent!]!
-    maintainanceEventsByDevice: [MaintainanceEvent!]!
-    lastestMaintainEvent(deviceId: ID!): MaintainanceEvent
+    maintainEvents: [MaintainEvent!]!
+    maintainEventsByUser: [MaintainEvent!]!
+    maintainEventsByDevice: [MaintainEvent!]!
+    lastestMaintainEvent(deviceId: ID!): MaintainEvent
   }
 
   extend type Mutation {
     createMaintainEvent(
       deviceId: ID!
-      maintainanceInfo: MaintainanceInfo!
-    ): MaintainanceEvent!
+      maintainInfo: MaintainInfo!
+    ): MaintainEvent!
     createStartMaintainEvent(
       deviceId: ID!
-      maintainanceInfo: MaintainanceInfo!
-    ): MaintainanceEvent!
+      maintainInfo: MaintainInfo!
+    ): MaintainEvent!
   }
 `;

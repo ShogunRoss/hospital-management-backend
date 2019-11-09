@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express';
 import userSchema from './user';
 import deviceSchema from './device';
 import activeEventSchema from './activeEvent';
-import maintainanceSchema from './maintainanceEvent';
+import maintainSchema from './maintainEvent';
 import liquidationSchema from './liquidationEvent';
 import accountantSchema from './accountantEvent';
 import fileSchema from './file';
@@ -30,7 +30,7 @@ export default [
   userSchema,
   deviceSchema,
   activeEventSchema,
-  maintainanceSchema,
+  maintainSchema,
   liquidationSchema,
   accountantSchema,
   fileSchema,

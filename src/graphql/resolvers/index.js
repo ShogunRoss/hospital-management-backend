@@ -3,7 +3,7 @@ import { GraphQLDateTime } from 'graphql-iso-date';
 import userResolvers from './user';
 import deviceResolvers from './device';
 import activeEventResolvers from './activeEvent';
-import maintainEventResolvers from './maintainanceEvent';
+import maintainEventResolvers from './maintainEvent';
 import accountantEventResolvers from './accountantEvent';
 import fileResolvers from './file';
 

@@ -6,28 +6,28 @@ import { UserInputError } from 'apollo-server';
 
 export default {
   Query: {
-    maintainanceEvents: combineResolvers(isAdmin, async (_, __, { models }) => {
-      const events = await models.MaintainanceEvent.find();
+    maintainEvents: combineResolvers(isAdmin, async (_, __, { models }) => {
+      const events = await models.MaintainEvent.find();
 
       return events.map(event => {
         return transformEvent(event);
       });
     }),
 
-    maintainanceEventsByUser: combineResolvers(
+    maintainEventsByUser: combineResolvers(
       isAdmin,
       async (_, { userId }, { models }) => {
-        const events = await models.MaintainanceEvent.find({ creator: userId });
+        const events = await models.MaintainEvent.find({ creator: userId });
         return events.map(event => {
           return transformEvent(event);
         });
       }
     ),
 
-    maintainanceEventsByDevice: combineResolvers(
+    maintainEventsByDevice: combineResolvers(
       isAdmin,
       async (_, { deviceId }, { models }) => {
-        const events = await models.MaintainanceEvent.find({
+        const events = await models.MaintainEvent.find({
           device: deviceId,
         });
         return events.map(event => {
@@ -38,7 +38,7 @@ export default {
     lastestMaintainEvent: combineResolvers(
       isAdmin,
       async (_, { deviceId }, { models }) => {
-        const [event] = await models.MaintainanceEvent.find({
+        const [event] = await models.MaintainEvent.find({
           device: deviceId,
         })
           .sort({ createdAt: -1 })
@@ -56,7 +56,7 @@ export default {
   Mutation: {
     createMaintainEvent: combineResolvers(
       isAdmin,
-      async (_, { deviceId, maintainanceInfo }, { models, me }) => {
+      async (_, { deviceId, maintainInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'liquidated') {
@@ -73,11 +73,11 @@ export default {
           );
         }
 
-        const isDeviceMaintained = device.availability === 'maintaining';
-        let maintainedInterval = 0;
+        const isDeviceMaintain = device.availability === 'maintaining';
+        let maintainInterval = 0;
 
-        if (isDeviceMaintained) {
-          const [lastestStartEvent] = await models.MaintainanceEvent.find({
+        if (isDeviceMaintain) {
+          const [lastestStartEvent] = await models.MaintainEvent.find({
             device: deviceId,
             actionType: true,
           })
@@ -91,18 +91,18 @@ export default {
             );
           }
 
-          maintainedInterval = Date.now() - lastestStartEvent.createdAt;
+          maintainInterval = Date.now() - lastestStartEvent.createdAt;
           device.availability = 'working';
         } else {
           device.availability = 'maintaining';
         }
 
-        const event = await models.MaintainanceEvent.create({
-          actionType: !isDeviceMaintained,
+        const event = await models.MaintainEvent.create({
+          actionType: !isDeviceMaintain,
           creator: me.id,
           device: deviceId,
-          maintainedInterval,
-          maintainance: maintainanceInfo,
+          maintainInterval,
+          maintain: maintainInfo,
         });
 
         await device.save();
@@ -113,7 +113,7 @@ export default {
     //* This resolver is deprecated
     createStartMaintainEvent: combineResolvers(
       isAdmin,
-      async (_, { deviceId, maintainanceInfo }, { models, me }) => {
+      async (_, { deviceId, maintainInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'liquidated') {
@@ -125,8 +125,8 @@ export default {
 
         if (device.availability === 'maintaining') {
           // TODO: Handle this situation in the future
-          throw new UserInputError('Device is under maintainance!', {
-            name: 'DeviceUnderMaintainance',
+          throw new UserInputError('Device is under maintain!', {
+            name: 'DeviceUnderMaintain',
             invalidArg: 'deviceId',
           });
         }
@@ -141,11 +141,11 @@ export default {
           );
         }
 
-        const event = await models.MaintainanceEvent.create({
+        const event = await models.MaintainEvent.create({
           actionType: true,
           creator: me.id,
           device: deviceId,
-          maintainance: maintainanceInfo,
+          maintain: maintainInfo,
         });
 
         device.availability = 'maintaining';

@@ -42,7 +42,14 @@ export default {
           });
         }
 
-        const user = await models.User.findById(me.id);
+        const newFilename = `${me.id}_${Date.now()}.${filename
+          .split('.')
+          .pop()}`;
+
+        const avatar = `${process.env.BACKEND_URL}/avatars/${newFilename}`;
+
+        const user = await models.User.findByIdAndUpdate(me.id, { avatar });
+
         if (user.avatar) {
           try {
             unlinkSync(
@@ -53,19 +60,11 @@ export default {
           }
         }
 
-        const newFilename = `${me.id}_${Date.now()}.${filename
-          .split('.')
-          .pop()}`;
-
         await new Promise(res =>
           createReadStream()
             .pipe(createWriteStream(path.join('./assets/avatars', newFilename)))
             .on('close', res)
         );
-
-        user.avatar = `${process.env.BACKEND_URL}/avatars/${newFilename}`;
-
-        await user.save();
 
         return true;
       }

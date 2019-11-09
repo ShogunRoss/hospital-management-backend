@@ -42,8 +42,8 @@ export default {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'maintaining') {
-          throw new UserInputError('Device is under maintainance!', {
-            name: 'DeviceUnderMaintainance',
+          throw new UserInputError('Device is under maintain!', {
+            name: 'DeviceUnderMaintain',
             invalidArg: 'deviceId',
           });
         }

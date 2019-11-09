@@ -30,7 +30,7 @@ export default {
     user: async (_, { id }, { models }) => {
       const user = await models.User.findById(id);
       if (!user) {
-        throw new UserInputError('No user found with this id.', {
+        throw new UserInputError('No user found with this id', {
           name: 'NoUserFound',
           invalidArg: 'id',
         });
@@ -51,7 +51,7 @@ export default {
       const userAlreadyExist = await models.User.findOne({ email });
 
       if (userAlreadyExist) {
-        throw new UserInputError('Email is already taken.', {
+        throw new UserInputError('Email is already taken', {
           name: 'UserAlreadyExist',
           invalidArg: 'email',
         });
@@ -82,7 +82,7 @@ export default {
       const user = await models.User.findOne({ email });
 
       if (!user) {
-        throw new UserInputError('No user found with this login credentials.', {
+        throw new UserInputError('No user found with this login credentials', {
           name: 'NoUserFound',
           invalidArg: 'email',
         });
@@ -99,7 +99,7 @@ export default {
       const isValid = await user.validatePassword(password);
 
       if (!isValid) {
-        throw new UserInputError('Invalid password.', {
+        throw new UserInputError('Invalid password', {
           name: 'InvalidPassword',
           invalidArg: 'password',
         });
@@ -192,14 +192,14 @@ export default {
         const isValid = await user.validatePassword(oldPassword);
 
         if (!isValid) {
-          throw new UserInputError('Invalid old password.', {
+          throw new UserInputError('Invalid old password', {
             name: 'InvalidOldPassword',
             invalidArg: 'oldPassword',
           });
         }
 
         user.password = newPassword;
-        user.save();
+        await user.save();
         return true;
       }
     ),
@@ -252,7 +252,7 @@ export default {
         if (user.role !== 'ADMIN') {
           return true;
         } else {
-          throw new UserInputError('User is already an Admin.', {
+          throw new UserInputError('User is already an Admin', {
             name: 'UserAlreadyAdmin',
             invalidArg: 'id',
           });
