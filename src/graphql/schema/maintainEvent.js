@@ -29,8 +29,8 @@ export default gql`
 
   extend type Query {
     maintainEvents: [MaintainEvent!]!
-    maintainEventsByUser: [MaintainEvent!]!
-    maintainEventsByDevice: [MaintainEvent!]!
+    maintainEventsByUser(userId: ID!): [MaintainEvent!]!
+    maintainEventsByDevice(deviceId: ID!): [MaintainEvent!]!
     lastestMaintainEvent(deviceId: ID!): MaintainEvent
   }
 
