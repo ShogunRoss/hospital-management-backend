@@ -43,6 +43,9 @@ export const transformEvent = event => {
     ...event._doc,
     id: event.id,
     creator: userOne.bind(this, event._doc.creator),
+    receiver: event._doc.receiver
+      ? userOne.bind(this, event._doc.receiver)
+      : null,
     device: deviceOne.bind(this, event._doc.device),
     createdAt: dateToString(event._doc.createdAt),
   };

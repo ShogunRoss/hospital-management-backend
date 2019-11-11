@@ -1,7 +1,6 @@
 import { combineResolvers } from 'graphql-resolvers';
 import { ApolloError, UserInputError } from 'apollo-server';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { createAccessToken } from '../../utils/createToken';

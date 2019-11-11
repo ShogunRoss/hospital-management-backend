@@ -20,8 +20,9 @@ export default gql`
   type MaintainEvent {
     id: ID!
     creator: User!
+    receiver: User
     device: Device!
-    actionType: Boolean!
+    finished: Boolean!
     createdAt: Date!
     maintainInfo: Maintain!
     maintainInterval: Int!

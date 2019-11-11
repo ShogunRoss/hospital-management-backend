@@ -2,7 +2,7 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
-import { UserInputError } from 'apollo-server';
+import { UserInputError, ApolloError } from 'apollo-server';
 
 export default {
   Query: {
@@ -58,6 +58,7 @@ export default {
       isAdmin,
       async (_, { deviceId, maintainInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
+        let event;
 
         if (device.availability === 'liquidated') {
           throw new Error('Device has been liquidated!');
@@ -74,38 +75,44 @@ export default {
         }
 
         const isDeviceMaintain = device.availability === 'maintaining';
-        let maintainInterval = 0;
 
         if (isDeviceMaintain) {
           const [lastestStartEvent] = await models.MaintainEvent.find({
             device: deviceId,
-            actionType: true,
+            finished: false,
           })
             .sort({ createdAt: -1 })
             .limit(1);
 
           if (!lastestStartEvent) {
-            // TODO: Handle this situation in the future
-            throw new Error(
-              'There is a leak in database! Lastest Start Maintain Event does not exist!'
+            device.availability = 'active';
+            await device.save();
+            throw new ApolloError(
+              'Database Leaked! Lastest Start Maintain Event does not exist!',
+              'DATABASE_LEAKED',
+              { name: 'DatabaseLeaked' }
             );
           }
 
-          maintainInterval = Date.now() - lastestStartEvent.createdAt;
-          device.availability = 'working';
+          event = lastestStartEvent;
+          // Update new info of an event
+          event.maintainInterval = Date.now() - lastestStartEvent.createdAt;
+          event.finished = true;
+          event.receiver = me.id;
+          event.maintainInfo = maintainInfo;
+          await event.save();
+
+          device.availability = 'active';
+          await device.save();
         } else {
           device.availability = 'maintaining';
+          await device.save();
+          event = await models.MaintainEvent.create({
+            creator: me.id,
+            device: deviceId,
+            maintainInfo,
+          });
         }
-
-        const event = await models.MaintainEvent.create({
-          actionType: !isDeviceMaintain,
-          creator: me.id,
-          device: deviceId,
-          maintainInterval,
-          maintainInfo,
-        });
-
-        await device.save();
 
         return transformEvent(event);
       }
@@ -142,7 +149,6 @@ export default {
         }
 
         const event = await models.MaintainEvent.create({
-          actionType: true,
           creator: me.id,
           device: deviceId,
           maintainInfo,

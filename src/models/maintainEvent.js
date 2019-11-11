@@ -5,13 +5,18 @@ const maintainEventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+  },
   device: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Device',
   },
-  actionType: {
+  finished: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   createdAt: {
     type: Date,
