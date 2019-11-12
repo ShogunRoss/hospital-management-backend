@@ -39,10 +39,10 @@ export default gql`
     createMaintainEvent(
       deviceId: ID!
       maintainInfo: MaintainInfo!
-    ): MaintainEvent!
+    ): MaintainEvent
     createStartMaintainEvent(
       deviceId: ID!
       maintainInfo: MaintainInfo!
-    ): MaintainEvent!
+    ): MaintainEvent
   }
 `;

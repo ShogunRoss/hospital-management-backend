@@ -40,6 +40,7 @@ export default {
       async (_, { deviceId }, { models }) => {
         const [event] = await models.MaintainEvent.find({
           device: deviceId,
+          finished: false,
         })
           .sort({ createdAt: -1 })
           .limit(1);

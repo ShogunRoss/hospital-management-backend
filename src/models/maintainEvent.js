@@ -39,13 +39,13 @@ const maintainEventSchema = new mongoose.Schema({
       type: String,
       default: '',
     },
-    note: {
-      type: String,
-      default: '',
-    },
     cost: {
       type: Number,
       default: 0,
+    },
+    note: {
+      type: String,
+      default: '',
     },
   },
 });
