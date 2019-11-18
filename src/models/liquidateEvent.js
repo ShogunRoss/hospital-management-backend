@@ -20,19 +20,23 @@ const liquidationEventSchema = new mongoose.Schema({
   liquidation: {
     name: {
       type: String,
+      default: '',
     },
     address: {
       type: String,
+      default: '',
     },
     phone: {
       type: String,
+      default: '',
     },
     note: {
       type: String,
+      default: '',
     },
     price: {
       type: Number,
-      required: true,
+      default: 0,
     },
   },
 });
