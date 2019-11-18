@@ -97,6 +97,9 @@ export default {
           liquidateInfo,
         });
 
+        device.availability = 'liquidated';
+        await device.save();
+
         return transformEvent(event);
       }
     ),
