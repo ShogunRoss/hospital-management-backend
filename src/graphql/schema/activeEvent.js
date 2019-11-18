@@ -12,9 +12,9 @@ export default gql`
   }
 
   extend type Query {
-    activeEvents: [ActiveEvent!]!
-    activeEventsByUser(userId: ID!): [ActiveEvent!]!
-    activeEventsByDevice(deviceId: ID!): [ActiveEvent!]!
+    activeEvents: [ActiveEvent]
+    activeEventsByUser(userId: ID!): [ActiveEvent]
+    activeEventsByDevice(deviceId: ID!): [ActiveEvent]
   }
 
   extend type Mutation {

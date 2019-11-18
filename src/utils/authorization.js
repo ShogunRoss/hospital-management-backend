@@ -9,11 +9,20 @@ export const isAdmin = combineResolvers(
   (_, __, { me: { role } }) =>
     role === 'ADMIN' || role === 'OWNER'
       ? skip
-      : new ForbiddenError('Not authorized as admin.')
+      : new ForbiddenError('Not authorized as admin')
+);
+
+export const isAccountant = combineResolvers(
+  isAuthenticated,
+  (_, __, { me: { role } }) => {
+    role === 'ACCOUNTANT' || role === 'OWNER'
+      ? skip
+      : new ForbiddenError('Not authorized as accountant');
+  }
 );
 
 export const isOwner = combineResolvers(
   isAuthenticated,
   (_, __, { me: { role } }) =>
-    role === 'OWNER' ? skip : new ForbiddenError('Not authorized as owner.')
+    role === 'OWNER' ? skip : new ForbiddenError('Not authorized as owner')
 );

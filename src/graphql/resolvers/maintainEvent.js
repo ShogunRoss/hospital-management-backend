@@ -2,7 +2,7 @@ import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
-import { UserInputError, ApolloError } from 'apollo-server';
+import { UserInputError } from 'apollo-server';
 
 export default {
   Query: {
@@ -59,20 +59,39 @@ export default {
       isAdmin,
       async (_, { deviceId, maintainInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
+
+        if (!device) {
+          throw new UserInputError('No device found', {
+            name: 'NoDeviceFound',
+            invalidArg: 'deviceId',
+          });
+        }
+
         let event;
 
         if (device.availability === 'liquidated') {
-          throw new Error('Device has been liquidated!');
+          throw new Error('Device was liquidated');
         }
 
         if (device.activeState) {
-          throw new UserInputError(
-            'Device still on! You should turn it off before continue!',
-            {
-              name: 'DeviceStillOn',
-              invalidArg: 'deviceId',
-            }
-          );
+          const [lastestOnEvent] = await models.ActiveEvent.find({
+            device: deviceId,
+            actionType: true,
+          })
+            .sort({ createdAt: -1 })
+            .limit(1);
+
+          if (!lastestOnEvent) {
+            //TODO: Handle later
+            throw new Error('Database leaked');
+          }
+
+          await models.ActiveEvent.create({
+            actionType: false,
+            creator: me.id,
+            device: deviceId,
+            usedInterval: Date.now() - lastestOnEvent.createdAt,
+          });
         }
 
         const isDeviceMaintain = device.availability === 'maintaining';
@@ -88,11 +107,7 @@ export default {
           if (!lastestStartEvent) {
             device.availability = 'active';
             await device.save();
-            throw new ApolloError(
-              'Database Leaked! Lastest Start Maintain Event does not exist!',
-              'DATABASE_LEAKED',
-              { name: 'DatabaseLeaked' }
-            );
+            throw new Error('Database leaked');
           }
 
           event = lastestStartEvent;
@@ -114,49 +129,6 @@ export default {
             maintainInfo,
           });
         }
-
-        return transformEvent(event);
-      }
-    ),
-    //* This resolver is deprecated
-    createStartMaintainEvent: combineResolvers(
-      isAdmin,
-      async (_, { deviceId, maintainInfo }, { models, me }) => {
-        const device = await models.Device.findById(deviceId);
-
-        if (device.availability === 'liquidated') {
-          throw new UserInputError('Device has been liquidated!', {
-            name: 'DeviceLiquidated',
-            invalidArg: 'deviceId',
-          });
-        }
-
-        if (device.availability === 'maintaining') {
-          // TODO: Handle this situation in the future
-          throw new UserInputError('Device is under maintain!', {
-            name: 'DeviceUnderMaintain',
-            invalidArg: 'deviceId',
-          });
-        }
-
-        if (device.activeState) {
-          throw new UserInputError(
-            'Device still on! You should turn it off before continue!',
-            {
-              name: 'DeviceStillOn',
-              invalidArg: 'deviceId',
-            }
-          );
-        }
-
-        const event = await models.MaintainEvent.create({
-          creator: me.id,
-          device: deviceId,
-          maintainInfo,
-        });
-
-        device.availability = 'maintaining';
-        await device.save();
 
         return transformEvent(event);
       }

@@ -4,7 +4,7 @@ import userSchema from './user';
 import deviceSchema from './device';
 import activeEventSchema from './activeEvent';
 import maintainSchema from './maintainEvent';
-import liquidationSchema from './liquidationEvent';
+import liquidateSchema from './liquidateEvent';
 import accountantSchema from './accountantEvent';
 import fileSchema from './file';
 
@@ -31,7 +31,7 @@ export default [
   deviceSchema,
   activeEventSchema,
   maintainSchema,
-  liquidationSchema,
+  liquidateSchema,
   accountantSchema,
   fileSchema,
 ];

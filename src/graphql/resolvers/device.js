@@ -19,7 +19,7 @@ export default {
       const device = await models.Device.findById(id);
 
       if (!device) {
-        throw new UserInputError('Device does not exist.', {
+        throw new UserInputError('No device found', {
           name: 'NoDeviceFound',
           invalidArg: 'id',
         });
@@ -64,7 +64,7 @@ export default {
         await device.remove();
         return true;
       } else {
-        throw new UserInputError('Device does not exist.', {
+        throw new UserInputError('No device found', {
           name: 'NoDeviceFound',
           invalidArg: 'id',
         });

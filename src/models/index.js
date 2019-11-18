@@ -2,7 +2,7 @@ import User from './user';
 import Device from './device';
 import ActiveEvent from './activeEvent';
 import MaintainEvent from './maintainEvent';
-import LiquidationEvent from './liquidationEvent';
+import LiquidateEvent from './liquidateEvent';
 import AccountantEvent from './accountantEvent';
 
 export default {
@@ -10,6 +10,6 @@ export default {
   Device,
   ActiveEvent,
   MaintainEvent,
-  LiquidationEvent,
+  LiquidateEvent,
   AccountantEvent,
 };

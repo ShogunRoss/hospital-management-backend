@@ -42,14 +42,14 @@ export default {
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'maintaining') {
-          throw new UserInputError('Device is under maintain!', {
+          throw new UserInputError('Device is under maintain', {
             name: 'DeviceUnderMaintain',
             invalidArg: 'deviceId',
           });
         }
 
         if (device.availability === 'liquidated') {
-          throw new UserInputError('Device has been liquidated!', {
+          throw new UserInputError('Device has been liquidated', {
             name: 'DeviceLiquidated',
             invalidArg: 'deviceId',
           });

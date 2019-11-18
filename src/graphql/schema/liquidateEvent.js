@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-  type Liquidation {
+  type LiquidateInfo {
     name: String
     address: String
     phone: String
@@ -9,19 +9,21 @@ export default gql`
     price: Int!
   }
 
-  type LiquidationEvent {
+  type LiquidateEvent {
     id: ID!
     creator: User!
     device: Device!
     createdAt: Date!
-    maintain: Liquidation!
+    maintain: LiquidateInfo!
   }
 
   extend type Query {
-    liquidationEvents: [LiquidationEvent!]!
+    liquidateEvents: [LiquidateEvent]
+    liquidateEventByDevice(deviceId: ID!): LiquidateEvent
+    liquidateEventsByUser(userId: ID!): [LiquidateEvent]
   }
 
   extend type Mutation {
-    createLiquidationEvent(deviceId: ID!): LiquidationEvent!
+    createLiquidateEvent(deviceId: ID!): LiquidateEvent!
   }
 `;

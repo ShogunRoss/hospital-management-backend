@@ -33,7 +33,7 @@ export default gql`
   }
 
   extend type Query {
-    devices: [Device!]
+    devices: [Device]
     device(id: ID!): Device!
   }
 

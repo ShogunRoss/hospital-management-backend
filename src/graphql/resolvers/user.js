@@ -1,5 +1,5 @@
 import { combineResolvers } from 'graphql-resolvers';
-import { ApolloError, UserInputError } from 'apollo-server';
+import { UserInputError } from 'apollo-server';
 import jwt from 'jsonwebtoken';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
@@ -29,7 +29,7 @@ export default {
     user: async (_, { id }, { models }) => {
       const user = await models.User.findById(id);
       if (!user) {
-        throw new UserInputError('No user found with this id', {
+        throw new UserInputError('No user found', {
           name: 'NoUserFound',
           invalidArg: 'id',
         });
@@ -59,7 +59,7 @@ export default {
 
       if (process.env.NODE_ENV !== 'test') {
         const info = await sendConfirmEmail(email, confirmEmailLink);
-
+        console.log(info);
         if (info) {
           await models.User.create({
             email,
@@ -81,18 +81,10 @@ export default {
       const user = await models.User.findOne({ email });
 
       if (!user) {
-        throw new UserInputError('No user found with this login credentials', {
+        throw new UserInputError('No user found', {
           name: 'NoUserFound',
           invalidArg: 'email',
         });
-      }
-
-      if (!user.confirmed) {
-        throw new ApolloError(
-          'User still does not confirmed email',
-          'NOT_CONFIRMED',
-          { name: 'NotConfirmed' }
-        );
       }
 
       const isValid = await user.validatePassword(password);
@@ -102,6 +94,10 @@ export default {
           name: 'InvalidPassword',
           invalidArg: 'password',
         });
+      }
+
+      if (!user.confirmed) {
+        throw new Error('User still does not confirmed email');
       }
 
       sendRefreshToken(res, await createRefreshToken(user));
@@ -122,11 +118,7 @@ export default {
       );
 
       if (!userId) {
-        throw new ApolloError(
-          'Invalid confirm token',
-          'INVALID_CONFIRM_TOKEN',
-          { name: 'InvalidConfirmToken' }
-        );
+        throw new Error('Invalid confirm token');
       }
 
       await models.User.findByIdAndUpdate(userId, { confirmed: true });
@@ -141,8 +133,8 @@ export default {
       // *: But it will take a lot of our Email API. So consider this in the future
 
       if (!user) {
-        throw new UserInputError('User do not exist', {
-          name: 'NoUserFound',
+        throw new UserInputError('No user found', {
+          name: 'NoUserExist',
           invalidArg: 'email',
         });
       }
@@ -163,7 +155,7 @@ export default {
     },
 
     resetPassword: async (_, { newPassword, passwordToken }, { models }) => {
-      const { userId, password } = await jwt.verify(
+      const { userId, password } = jwt.verify(
         passwordToken,
         process.env.PASSWORD_TOKEN_SECRET
       );
@@ -177,11 +169,7 @@ export default {
         }
       }
 
-      throw new ApolloError(
-        'Invalid password token',
-        'INVALID_PASSWORD_TOKEN',
-        { name: 'InvalidPasswordToken' }
-      );
+      throw new Error('Invalid password token');
     },
 
     changePassword: combineResolvers(
@@ -220,7 +208,7 @@ export default {
         await user.remove();
         return true;
       } else {
-        throw new UserInputError('User do not exist', {
+        throw new UserInputError('No user found', {
           name: 'NoUserFound',
           invalidArg: 'email',
         });
@@ -236,7 +224,7 @@ export default {
           await user.remove();
           return true;
         } else {
-          throw new UserInputError('User do not exist', {
+          throw new UserInputError('No user found', {
             name: 'NoUserFound',
             invalidArg: 'email',
           });
@@ -257,7 +245,7 @@ export default {
           });
         }
       } else {
-        throw new UserInputError('User do not exist', {
+        throw new UserInputError('No user found', {
           name: 'NoUserFound',
           invalidArg: 'id',
         });
