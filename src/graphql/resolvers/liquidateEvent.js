@@ -17,7 +17,7 @@ export default {
     liquidateEventByDevice: combineResolvers(
       isAdmin,
       async (_, { deviceId }, { models }) => {
-        const event = await models.LiquidateEvent.find({ device: deviceId });
+        const [event] = await models.LiquidateEvent.find({ device: deviceId });
         return transformEvent(event);
       }
     ),
