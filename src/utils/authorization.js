@@ -15,7 +15,7 @@ export const isAdmin = combineResolvers(
 export const isAccountant = combineResolvers(
   isAuthenticated,
   (_, __, { me: { role } }) => {
-    role === 'ACCOUNTANT' || role === 'OWNER'
+    role === 'ACCOUNTANT' || role === 'ADMIN' || role === 'OWNER'
       ? skip
       : new ForbiddenError('Not authorized as accountant');
   }

@@ -4,6 +4,7 @@ import userResolvers from './user';
 import deviceResolvers from './device';
 import activeEventResolvers from './activeEvent';
 import maintainEventResolvers from './maintainEvent';
+import liquidateEventResolvers from './liquidateEvent';
 import accountantEventResolvers from './accountantEvent';
 import fileResolvers from './file';
 
@@ -17,6 +18,7 @@ export default [
   deviceResolvers,
   activeEventResolvers,
   maintainEventResolvers,
+  liquidateEventResolvers,
   accountantEventResolvers,
   fileResolvers,
 ];

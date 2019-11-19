@@ -9,15 +9,11 @@ const liquidationEventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Device',
   },
-  action: {
-    type: Boolean,
-    required: true,
-  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  liquidation: {
+  liquidateInfo: {
     name: {
       type: String,
       default: '',

@@ -33,12 +33,12 @@ export default {
       }
     ),
   },
+
   Mutation: {
     createLiquidateEvent: combineResolvers(
       isAccountant,
       async (_, { deviceId, liquidateInfo }, { models, me }) => {
         const device = await models.Device.findById(deviceId);
-
         if (!device) {
           throw new UserInputError('No device found', {
             name: 'NoDeviceFound',

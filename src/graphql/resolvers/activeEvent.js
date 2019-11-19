@@ -49,7 +49,7 @@ export default {
         }
 
         if (device.availability === 'liquidated') {
-          throw new UserInputError('Device has been liquidated', {
+          throw new UserInputError('Device was liquidated', {
             name: 'DeviceLiquidated',
             invalidArg: 'deviceId',
           });
