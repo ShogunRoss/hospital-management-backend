@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
 import { createAccessToken } from '../../utils/createToken';
-import { transformUser } from '../../utils/transform';
+import { transformUser, transformLeanUser } from '../../utils/transform';
 import {
   sendConfirmEmail,
   sendForgotPasswordEmail,
@@ -18,16 +18,46 @@ import { createRefreshToken } from '../../utils/createToken';
 
 export default {
   Query: {
-    users: async (_, __, { models }) => {
-      const users = await models.User.find();
+    users: combineResolvers(
+      isAdmin,
+      async (_, { cursor = Date.now(), limit = 0 }, { models }) => {
+        if (limit < 0) {
+          throw new UserInputError('Limit must be positive', {
+            invalidArg: 'limit',
+          });
+        }
 
-      return users.map(user => {
-        return transformUser(user);
-      });
-    },
+        if (!cursor) {
+          throw new UserInputError('Cursor is not valid', {
+            invalidArg: 'cursor',
+          });
+        }
 
-    user: async (_, { id }, { models }) => {
-      const user = await models.User.findById(id);
+        const allUsers = await models.User.find()
+          .sort('-createdAt')
+          .lean();
+        const unlimitedUsers = allUsers.map(user => {
+          if (user.createdAt < cursor) {
+            return transformLeanUser(user);
+          }
+        });
+        const users =
+          limit !== 0 ? unlimitedUsers.slice(0, limit) : unlimitedUsers;
+
+        return {
+          data: users,
+          pageInfo: {
+            endCursor: users[users.length - 1].createdAt,
+            hasNextPage: limit !== 0 ? unlimitedUsers.length > limit : false,
+          },
+          totalCount: allUsers.length,
+        };
+      }
+    ),
+
+    user: combineResolvers(isAdmin, async (_, { id }, { models }) => {
+      const user = await models.User.findById(id).lean();
+
       if (!user) {
         throw new UserInputError('No user found', {
           name: 'NoUserFound',
@@ -35,19 +65,19 @@ export default {
         });
       }
 
-      return transformUser(user);
-    },
+      return transformLeanUser(user);
+    }),
 
     me: combineResolvers(isAuthenticated, async (_, __, { models, me }) => {
-      const user = await models.User.findById(me.id);
+      const user = await models.User.findById(me.id).lean();
 
-      return transformUser(user);
+      return transformLeanUser(user);
     }),
   },
 
   Mutation: {
     signUp: async (_, { email, password }, { models, url }) => {
-      const userAlreadyExist = await models.User.findOne({ email });
+      const userAlreadyExist = await models.User.findOne({ email }).lean();
 
       if (userAlreadyExist) {
         throw new UserInputError('Email is already taken', {
@@ -127,7 +157,7 @@ export default {
     },
 
     forgotPassword: async (_, { email }, { models }) => {
-      const user = await models.User.findOne({ email });
+      const user = await models.User.findOne({ email }).lean();
 
       // *: If check user availability here, we might expose our user emails to the attacker - so we will send to whatever email user enter to avoid this scheme.
       // *: But it will take a lot of our Email API. So consider this in the future
@@ -233,7 +263,9 @@ export default {
     ),
 
     makeAdmin: combineResolvers(isAdmin, async (_, { id }, { models }) => {
-      const user = await models.User.findByIdAndUpdate(id, { role: 'ADMIN' });
+      const user = await models.User.findByIdAndUpdate(id, {
+        role: 'ADMIN',
+      }).lean();
 
       if (user) {
         if (user.role !== 'ADMIN') {

@@ -13,7 +13,6 @@ import confirmEmail from './routes/confirmEmail';
 import refreshToken from './routes/refreshToken';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
-// import userLoader from './utils/userLoader';
 
 const assetsDirs = {
   assets: path.join(__dirname, '../assets'),

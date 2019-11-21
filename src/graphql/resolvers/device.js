@@ -1,19 +1,48 @@
 import { combineResolvers } from 'graphql-resolvers';
 
 import { isAdmin, isAuthenticated } from '../../utils/authorization';
-import { transformDevice } from '../../utils/transform';
+import { transformDevice, transformLeanDevice } from '../../utils/transform';
 import { UserInputError } from 'apollo-server';
 import genQRCode from '../../utils/genQRCode';
 
 export default {
   Query: {
-    devices: combineResolvers(isAdmin, async (_, __, { models }) => {
-      const devices = await models.Device.find();
+    devices: combineResolvers(
+      isAdmin,
+      async (_, { cursor = Date.now(), limit = 0 }, { models }) => {
+        if (limit < 0) {
+          throw new UserInputError('Limit must be positive', {
+            invalidArg: 'limit',
+          });
+        }
 
-      return devices.map(device => {
-        return transformDevice(device);
-      });
-    }),
+        if (!cursor) {
+          throw new UserInputError('Cursor is not valid', {
+            invalidArg: 'cursor',
+          });
+        }
+
+        const allDevices = await models.Device.find()
+          .sort('-createdAt')
+          .lean();
+        const unlimitedDevices = allDevices.map(device => {
+          if (device.createdAt < cursor) {
+            return transformLeanDevice(device);
+          }
+        });
+        const devices =
+          limit !== 0 ? unlimitedDevices.slice(0, limit) : unlimitedDevices;
+
+        return {
+          data: devices,
+          pageInfo: {
+            endCursor: devices[devices.length - 1].createdAt,
+            hasNextPage: limit !== 0 ? unlimitedDevices.length > limit : false,
+          },
+          totalCount: allDevices.length,
+        };
+      }
+    ),
 
     device: combineResolvers(isAuthenticated, async (_, { id }, { models }) => {
       const device = await models.Device.findById(id);

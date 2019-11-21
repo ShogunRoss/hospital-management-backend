@@ -20,6 +20,12 @@ export default gql`
     createdBy: User!
   }
 
+  type DevicesResultCursor {
+    data: [Device!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
   input DeviceInput {
     title: String!
     model: String!
@@ -33,8 +39,8 @@ export default gql`
   }
 
   extend type Query {
-    devices: [Device]
-    device(id: ID!): Device!
+    devices(cursor: String, limit: Int): DevicesResultCursor
+    device(id: ID!): Device
   }
 
   extend type Mutation {

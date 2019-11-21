@@ -1,18 +1,18 @@
 import { combineResolvers } from 'graphql-resolvers';
+import { UserInputError } from 'apollo-server';
 
 import { isAdmin, isAccountant } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
-import { UserInputError } from 'apollo-server';
+import eventQuery from '../../utils/eventQuery';
 
 export default {
   Query: {
-    liquidateEvents: combineResolvers(isAdmin, async (_, __, { models }) => {
-      const events = await models.LiquidateEvent.find();
-
-      return events.map(event => {
-        return transformEvent(event);
-      });
-    }),
+    liquidateEvents: combineResolvers(
+      isAdmin,
+      async (_, { cursor = Date.now(), limit = 0 }, { models }) => {
+        return await eventQuery(models.LiquidateEvent, null, cursor, limit);
+      }
+    ),
 
     liquidateEventByDevice: combineResolvers(
       isAdmin,
@@ -24,12 +24,13 @@ export default {
 
     liquidateEventsByUser: combineResolvers(
       isAdmin,
-      async (_, { userId }, { models }) => {
-        const events = await models.LiquidateEvent.find({ creator: userId });
-
-        return events.map(event => {
-          return transformEvent(event);
-        });
+      async (_, { userId, cursor = Date.now(), limit = 0 }, { models }) => {
+        return await eventQuery(
+          models.LiquidateEvent,
+          { creator: userId },
+          cursor,
+          limit
+        );
       }
     ),
   },

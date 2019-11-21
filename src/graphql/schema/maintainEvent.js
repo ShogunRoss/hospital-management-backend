@@ -28,11 +28,29 @@ export default gql`
     maintainInterval: Int!
   }
 
+  type MaintainEventResultCursor {
+    data: [MaintainEvent]
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
   extend type Query {
-    maintainEvents: [MaintainEvent]
-    maintainEventsByUser(userId: ID!): [MaintainEvent]
-    maintainEventsByDevice(deviceId: ID!): [MaintainEvent]
-    lastestMaintainEvent(deviceId: ID!): MaintainEvent
+    maintainEvents: MaintainEventResultCursor
+    maintainEventsByUser(
+      userId: ID!
+      cursor: String
+      limit: Int
+    ): MaintainEventResultCursor
+    maintainEventsByDevice(
+      deviceId: ID!
+      cursor: String
+      limit: Int
+    ): MaintainEventResultCursor
+    lastestMaintainEvent(
+      deviceId: ID!
+      cursor: String
+      limit: Int
+    ): MaintainEvent
   }
 
   extend type Mutation {

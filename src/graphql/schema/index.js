@@ -16,6 +16,11 @@ const linkSchema = gql`
     message: String!
   }
 
+  type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean!
+  }
+
   type Query {
     _: Boolean
   }

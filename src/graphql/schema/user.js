@@ -12,11 +12,17 @@ export default gql`
     phone: String
     firstName: String
     lastName: String
-    createdAt: String!
+    createdAt: Date!
     role: String!
     confirmed: Boolean!
     tokenVersion: Int!
     avatar: String
+  }
+
+  type UsersResultCursor {
+    data: [User!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
   }
 
   input UserInput {
@@ -26,8 +32,8 @@ export default gql`
   }
 
   extend type Query {
-    users: [User!]
-    user(id: ID!): User!
+    users(cursor: String, limit: Int): UsersResultCursor
+    user(id: ID!): User
     me: User!
   }
 

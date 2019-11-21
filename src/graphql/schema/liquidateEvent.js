@@ -25,10 +25,20 @@ export default gql`
     price: Int
   }
 
+  type LiquidateEventResultCursor {
+    data: [LiquidateEvent]
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
   extend type Query {
-    liquidateEvents: [LiquidateEvent]
+    liquidateEvents(cursor: String, limit: Int): LiquidateEventResultCursor
     liquidateEventByDevice(deviceId: ID!): LiquidateEvent
-    liquidateEventsByUser(userId: ID!): [LiquidateEvent]
+    liquidateEventsByUser(
+      userId: ID!
+      cursor: String
+      limit: Int
+    ): LiquidateEventResultCursor
   }
 
   extend type Mutation {

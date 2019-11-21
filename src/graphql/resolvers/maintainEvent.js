@@ -1,38 +1,40 @@
 import { combineResolvers } from 'graphql-resolvers';
+import { UserInputError } from 'apollo-server';
 
 import { isAdmin } from '../../utils/authorization';
 import { transformEvent } from '../../utils/transform';
-import { UserInputError } from 'apollo-server';
+import eventQuery from '../../utils/eventQuery';
 
 export default {
   Query: {
-    maintainEvents: combineResolvers(isAdmin, async (_, __, { models }) => {
-      const events = await models.MaintainEvent.find();
-
-      return events.map(event => {
-        return transformEvent(event);
-      });
-    }),
+    maintainEvents: combineResolvers(
+      isAdmin,
+      async (_, { cursor = Date.now(), limit = 0 }, { models }) => {
+        return await eventQuery(models.MaintainEvent, null, cursor, limit);
+      }
+    ),
 
     maintainEventsByUser: combineResolvers(
       isAdmin,
-      async (_, { userId }, { models }) => {
-        const events = await models.MaintainEvent.find({ creator: userId });
-        return events.map(event => {
-          return transformEvent(event);
-        });
+      async (_, { userId, cursor = Date.now(), limit = 0 }, { models }) => {
+        return await eventQuery(
+          models.MaintainEvent,
+          { creator: userId },
+          cursor,
+          limit
+        );
       }
     ),
 
     maintainEventsByDevice: combineResolvers(
       isAdmin,
-      async (_, { deviceId }, { models }) => {
-        const events = await models.MaintainEvent.find({
-          device: deviceId,
-        });
-        return events.map(event => {
-          return transformEvent(event);
-        });
+      async (_, { deviceId, cursor = Date.now(), limit = 0 }, { models }) => {
+        return await eventQuery(
+          models.MaintainEvent,
+          { device: deviceId },
+          cursor,
+          limit
+        );
       }
     ),
     lastestMaintainEvent: combineResolvers(

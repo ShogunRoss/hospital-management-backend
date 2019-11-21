@@ -50,3 +50,32 @@ export const transformEvent = event => {
     createdAt: dateToString(event._doc.createdAt),
   };
 };
+
+export const transformLeanUser = user => {
+  return {
+    ...user,
+    id: user._id,
+    password: null,
+    createdAt: dateToString(user.createdAt),
+  };
+};
+
+export const transformLeanDevice = device => {
+  return {
+    ...device,
+    id: device._id,
+    createdBy: userOne.bind(this, device.createdBy),
+    createdAt: dateToString(device.createdAt),
+  };
+};
+
+export const transformLeanEvent = event => {
+  return {
+    ...event,
+    id: event._id,
+    creator: userOne.bind(this, event.creator),
+    receiver: event.receiver ? userOne.bind(this, event.receiver) : null,
+    device: deviceOne.bind(this, event.device),
+    createdAt: dateToString(event.createdAt),
+  };
+};

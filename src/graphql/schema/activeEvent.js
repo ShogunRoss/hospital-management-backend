@@ -11,10 +11,24 @@ export default gql`
     reported: Boolean!
   }
 
+  type ActiveEventResultCursor {
+    data: [ActiveEvent]
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
   extend type Query {
-    activeEvents: [ActiveEvent]
-    activeEventsByUser(userId: ID!): [ActiveEvent]
-    activeEventsByDevice(deviceId: ID!): [ActiveEvent]
+    activeEvents(cursor: String, limit: Int): ActiveEventResultCursor
+    activeEventsByUser(
+      userId: ID!
+      cursor: String
+      limit: Int
+    ): ActiveEventResultCursor
+    activeEventsByDevice(
+      deviceId: ID!
+      cursor: String
+      limit: Int
+    ): ActiveEventResultCursor
   }
 
   extend type Mutation {
