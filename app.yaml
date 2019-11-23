@@ -1,6 +1,13 @@
 # [START runtime]
-runtime: nodejs10
+runtime: nodejs12
 env_variables:
   MONGO_DB: 'mongodb+srv://shogunross:truesoul1995@chatbotdatabase-y4vvz.gcp.mongodb.net/hospital-management?retryWrites=true'
   ACCESS_TOKEN_SECRET: 'somesupersecretkey'
+  REFRESH_TOKEN_SECRET: 'somesupersecretrefreshkey'
+  CONFIRM_TOKEN_SECRET: 'somesupersecretconfirmkey'
+  PASSWORD_TOKEN_SECRET: 'somesupersecretpasswordkey'
+  FRONTEND_URL: 'hospital-management-2019.appspot.com'
+  BACKEND_URL: 'hospital-management-2019.appspot.com'
+  GMAIL_USER: 'industrial.automation.advisor@gmail.com'
+  GMAIL_PASSWORD: 'Thanhcong0908017922'
 # [END runtime]

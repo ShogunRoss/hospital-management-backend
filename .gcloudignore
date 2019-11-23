@@ -13,6 +13,8 @@
 .git
 .gitignore
 .env
+Dockerfile
+docker-compose.yml
 
 # Node.js dependencies:
 node_modules/
