@@ -9,14 +9,11 @@ services:
     links:
       - mongo
   mongo:
-    container_name: mongo-container
+    container_name: mongo
     image: mongo
     ports:
       - '27017:27017'
+    env_file: .env
     environment:
-      - MONGO_INITDB_DATABASE=hospital-management
-      - MONGO_INITDB_ROOT_USERNAME=AdminLong
-      - MONGO_INITDB_ROOT_PASSWORD=5101995
-    volumes:
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro
-      - ./data:/data/db
+      - MONGO_INITDB_ROOT_USERNAME=$MONGO_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASSWORD

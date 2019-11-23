@@ -21,7 +21,15 @@ const assetsDirs = {
   qrcodes: path.join(__dirname, '../assets/qrcodes'),
 };
 
-const App = async () => {
+const {
+  MONGO_USERNAME,
+  MONGO_PASSWORD,
+  MONGO_HOSTNAME,
+  MONGO_PORT,
+  MONGO_DB,
+} = process.env;
+
+(async () => {
   const port = process.env.PORT || 8000;
   const app = express();
 
@@ -70,17 +78,20 @@ const App = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  await mongoose.connect(process.env.MONGO_DB, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  });
+  await mongoose.connect(
+    `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}`,
+    {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 500,
+      connectTimeoutMS: 10000,
+    }
+  );
 
   app.listen({ port }, () => {
     console.log(`Apollo Server on http://localhost:${port}/graphql`);
   });
-};
-
-App();
-
-export default App;
+})();
