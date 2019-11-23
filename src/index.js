@@ -20,7 +20,6 @@ const assetsDirs = {
   files: path.join(__dirname, '../assets/files'),
   qrcodes: path.join(__dirname, '../assets/qrcodes'),
 };
-
 const {
   MONGO_USERNAME,
   MONGO_PASSWORD,
@@ -79,12 +78,11 @@ const {
   apolloServer.applyMiddleware({ app, cors: false });
 
   await mongoose.connect(
-    `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}`,
+    `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?authSource=admin`,
     {
       useNewUrlParser: true,
       useCreateIndex: true,
       useFindAndModify: false,
-      useUnifiedTopology: true,
       reconnectTries: Number.MAX_VALUE,
       reconnectInterval: 500,
       connectTimeoutMS: 10000,
