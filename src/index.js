@@ -20,13 +20,6 @@ const assetsDirs = {
   files: path.join(__dirname, '../assets/files'),
   qrcodes: path.join(__dirname, '../assets/qrcodes'),
 };
-const {
-  MONGO_USERNAME,
-  MONGO_PASSWORD,
-  MONGO_HOSTNAME,
-  MONGO_PORT,
-  MONGO_DB,
-} = process.env;
 
 (async () => {
   const port = process.env.PORT || 8000;
@@ -78,7 +71,7 @@ const {
   apolloServer.applyMiddleware({ app, cors: false });
 
   await mongoose.connect(
-    `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?authSource=admin`,
+    process.env.MONGO_URL,
     {
       useNewUrlParser: true,
       useCreateIndex: true,
