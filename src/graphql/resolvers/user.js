@@ -89,7 +89,7 @@ export default {
 
       if (process.env.NODE_ENV !== 'test') {
         const info = await sendConfirmEmail(email, confirmEmailLink);
-        console.log(info);
+        // console.log(info);
         if (info) {
           await models.User.create({
             email,
@@ -175,7 +175,7 @@ export default {
       );
 
       if (process.env.NODE_ENV !== 'test') {
-        console.log(forgotPasswordLink);
+        // console.log(forgotPasswordLink);
         await sendForgotPasswordEmail(email, forgotPasswordLink);
       } else {
         console.log(forgotPasswordLink);

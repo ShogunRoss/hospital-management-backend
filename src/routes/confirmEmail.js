@@ -3,7 +3,7 @@ import User from '../models/user';
 
 export default async (req, res) => {
   const { confirmToken } = req.params;
-  console.log(confirmToken);
+  // console.log(confirmToken);
   try {
     const { email } = await jwt.verify(
       confirmToken,
