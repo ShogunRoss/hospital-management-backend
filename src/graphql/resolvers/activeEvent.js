@@ -42,7 +42,10 @@ export default {
   Mutation: {
     createActiveEvent: combineResolvers(
       isAuthenticated,
-      async (_, { deviceId }, { models, me }) => {
+      async (_, { deviceId, reported = false }, { models, me }) => {
+        let usedInterval = 0;
+        let createdAt = Date.now();
+
         const device = await models.Device.findById(deviceId);
 
         if (device.availability === 'maintaining') {
@@ -60,19 +63,19 @@ export default {
         }
 
         const actionType = !device.activeState;
-        let usedInterval = 0;
 
-        if (actionType === false) {
-          // if action is TURN OFF
-          const [lastestOnEvent] = await models.ActiveEvent.find({
-            device: deviceId,
-            actionType: true,
-          })
-            .sort({ createdAt: -1 })
-            .limit(1);
-
-          if (lastestOnEvent) {
-            usedInterval = Date.now() - lastestOnEvent.createdAt;
+        const [lastestEvent] = await models.ActiveEvent.find({
+          device: deviceId,
+        })
+          .sort({ createdAt: -1 })
+          .limit(1);
+        if (lastestEvent) {
+          if (!actionType) {
+            // if action is to turn OFF device - actionType === false
+            usedInterval = createdAt - lastestEvent.createdAt;
+          } else if (reported) {
+            usedInterval =
+              createdAt - lastestEvent.createdAt + lastestEvent.usedInterval;
           }
         }
 
@@ -81,6 +84,8 @@ export default {
           creator: me.id,
           device: deviceId,
           usedInterval,
+          reported,
+          createdAt,
         });
 
         device.activeState = actionType;

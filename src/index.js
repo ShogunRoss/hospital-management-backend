@@ -70,17 +70,14 @@ const assetsDirs = {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  await mongoose.connect(
-    process.env.MONGO_URL,
-    {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      reconnectTries: Number.MAX_VALUE,
-      reconnectInterval: 500,
-      connectTimeoutMS: 10000,
-    }
-  );
+  await mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    reconnectTries: Number.MAX_VALUE,
+    reconnectInterval: 500,
+    connectTimeoutMS: 10000,
+  });
 
   app.listen({ port }, () => {
     console.log(`Apollo Server on ${process.env.BACKEND_URL}/graphql`);

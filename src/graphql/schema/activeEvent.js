@@ -32,6 +32,6 @@ export default gql`
   }
 
   extend type Mutation {
-    createActiveEvent(deviceId: ID!): ActiveEvent!
+    createActiveEvent(deviceId: ID!, reported: Boolean): ActiveEvent!
   }
 `;
