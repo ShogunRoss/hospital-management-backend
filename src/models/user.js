@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     maxLength: 42,
   },
+  employeeId: {
+    type: String,
+    required: true,
+    match: [/[A-Z]{1}[0-9]{3}.[0-9]{4}/i, 'Wrong employeeId format'],
+  },
   firstName: {
     type: String,
     // required: true,

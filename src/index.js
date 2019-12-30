@@ -19,6 +19,7 @@ const assetsDirs = {
   avatars: path.join(__dirname, '../assets/avatars'),
   files: path.join(__dirname, '../assets/files'),
   qrcodes: path.join(__dirname, '../assets/qrcodes'),
+  icons: path.join(__dirname, './public/icons'),
 };
 
 (async () => {

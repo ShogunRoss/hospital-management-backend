@@ -76,7 +76,7 @@ export default {
   },
 
   Mutation: {
-    signUp: async (_, { email, password }, { models, url }) => {
+    signUp: async (_, { email, password, employeeId }, { models, url }) => {
       const userAlreadyExist = await models.User.findOne({ email }).lean();
 
       if (userAlreadyExist) {
@@ -94,6 +94,7 @@ export default {
           await models.User.create({
             email,
             password,
+            employeeId,
           });
         }
       } else {
@@ -101,6 +102,7 @@ export default {
         await models.User.create({
           email,
           password,
+          employeeId,
         });
       }
 
