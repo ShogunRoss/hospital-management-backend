@@ -29,7 +29,8 @@ const assetsDirs = {
   app.use(cookieParser());
   app.use(
     cors({
-      origin: 'http://localhost:3000',
+      // origin: process.env.FRONTEND_URL,
+      origin: 'http://localhost',
       credentials: true,
     })
   );

@@ -191,7 +191,7 @@ export default {
         passwordToken,
         process.env.PASSWORD_TOKEN_SECRET
       );
-
+      console.log(passwordToken);
       if (userId) {
         const user = await models.User.findById(userId);
         if (user.password === password) {
