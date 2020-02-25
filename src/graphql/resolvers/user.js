@@ -98,7 +98,7 @@ export default {
           });
         }
       } else {
-        console.log(confirmEmailLink);
+        // console.log(confirmEmailLink);
         await models.User.create({
           email,
           password,

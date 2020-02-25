@@ -3,40 +3,43 @@ const mongoose = require('mongoose');
 const deviceSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    require: true,
   },
   model: {
     type: String,
+    default: '',
   },
   manufacturer: {
     type: String,
+    default: '',
   },
   origin: {
     type: String,
-    required: true,
+    default: '',
   },
   manufacturedYear: {
     type: String,
-    require: true,
+    default: '',
   },
   startUseTime: {
     type: Date,
-    require: true,
+    default: Date.now,
   },
   startUseState: {
     type: Boolean,
-    require: true,
+    default: true,
   },
   faculty: {
     type: String,
-    required: true,
+    default: '',
   },
   originalPrice: {
     type: Number,
-    required: true,
+    default: 0,
   },
   currentPrice: {
     type: Number,
+    default: 0,
   },
   activeState: {
     type: Boolean,

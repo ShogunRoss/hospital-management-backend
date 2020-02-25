@@ -82,6 +82,6 @@ const assetsDirs = {
   });
 
   app.listen({ port }, () => {
-    console.log(`Apollo Server on ${process.env.BACKEND_URL}/graphql`);
+    console.log(`Server ready at ${process.env.BACKEND_URL}/graphql`);
   });
 })();

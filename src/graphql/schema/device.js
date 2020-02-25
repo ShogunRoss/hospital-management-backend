@@ -28,14 +28,14 @@ export default gql`
 
   input DeviceInput {
     title: String!
-    model: String!
-    manufacturer: String!
-    origin: String!
-    manufacturedYear: String!
-    startUseTime: Date!
-    startUseState: Boolean!
-    faculty: String!
-    originalPrice: Int!
+    model: String
+    manufacturer: String
+    origin: String
+    manufacturedYear: String
+    startUseTime: Date
+    startUseState: Boolean
+    faculty: String
+    originalPrice: Int
   }
 
   extend type Query {
