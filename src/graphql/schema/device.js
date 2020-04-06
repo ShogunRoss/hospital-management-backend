@@ -8,7 +8,7 @@ export default gql`
     manufacturer: String!
     origin: String!
     manufacturedYear: String!
-    startUseTime: Date!
+    startUseTime: Date
     startUseState: Boolean!
     faculty: String!
     originalPrice: Int!
