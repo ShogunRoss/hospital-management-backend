@@ -76,7 +76,8 @@ export default {
   },
 
   Mutation: {
-    signUp: async (_, { email, password, employeeId }, { models, url }) => {
+    signUp: async (_, { userInput }, { models, url }) => {
+      const { email } = userInput;
       const userAlreadyExist = await models.User.findOne({ email }).lean();
 
       if (userAlreadyExist) {
@@ -91,19 +92,11 @@ export default {
         const info = await sendConfirmEmail(email, confirmEmailLink);
         // console.log(info);
         if (info) {
-          await models.User.create({
-            email,
-            password,
-            employeeId,
-          });
+          await models.User.create(userInput);
         }
       } else {
         // console.log(confirmEmailLink);
-        await models.User.create({
-          email,
-          password,
-          employeeId,
-        });
+        await models.User.create(userInput);
       }
 
       return true;
