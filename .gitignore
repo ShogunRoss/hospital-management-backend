@@ -5,3 +5,4 @@ yarn-error.log*
 assets/
 package-lock.json
 .env
+app.yaml
