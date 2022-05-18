@@ -29,7 +29,7 @@ export default gql`
   input UserInput {
     email: String!
     password: String!
-    employeeId: String!
+    employeeId: String
     phone: String
     firstName: String
     lastName: String

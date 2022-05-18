@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   employeeId: {
     type: String,
-    required: true,
+    // required: true,
     match: [/[A-Z]{1}[0-9]{3}.[0-9]{4}/i, 'Wrong employeeId format'],
   },
   firstName: {

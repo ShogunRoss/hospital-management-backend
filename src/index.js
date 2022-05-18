@@ -29,8 +29,7 @@ const assetsDirs = {
   app.use(cookieParser());
   app.use(
     cors({
-      // origin: process.env.FRONTEND_URL,
-      origin: 'http://127.0.0.1:3000',
+      origin: process.env.FRONTEND_URL,
       credentials: true,
     })
   );
@@ -72,16 +71,15 @@ const assetsDirs = {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  await mongoose.connect(process.env.MONGO_URL, {
+  await mongoose.connect(process.env.MONGO_DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    reconnectTries: Number.MAX_VALUE,
-    reconnectInterval: 500,
     connectTimeoutMS: 10000,
+    useUnifiedTopology: true,
   });
 
   app.listen({ port }, () => {
-    console.log(`Server ready at ${process.env.BACKEND_URL}/graphql`);
+    console.log(`Server ready at http://localhost:${port}/graphql`);
   });
 })();
